@@ -1,0 +1,39 @@
+Faction,Name,Type,Autoresolve Bonus,Unit Size
+2,Light Woodmen,1,4,4
+2,Guards of Beladimir,1,5,4
+2,Beladimir Spearmen,1,6,4
+2,Woodsmen Archers,3,4,4
+2,Archers of Beladimir,3,5,4
+2,Coastal Guards,3,4,4
+2,Riders of the Wood,2,3,3
+2,Beladimir Cavalry,2,6,3
+2,Plains Cavalry,2,5,3
+3,Mountain Men,1,4,4
+3,Lerastir Shieldbearers,1,6,4
+3,Lerastir Spears,1,5,4
+3,Pikes of Lerastir,1,5,4
+3,Axemen of the Vale,1,6,4
+3,Bowmen of Lerastir,3,4,4
+3,Crossbowmen of the South,3,6,4
+3,Vale Cavalry,2,4,3
+3,Territory Guardsmen,1,3,4
+3,Lerastir Palace Cavalry,2,6,3
+4,Shieldmaidens of the North,1,6,4
+4,Menoriad Spearmen,1,5,4
+4,Axemen of the Wastes,1,4,4
+4,Menoriad Archers,3,4,4
+4,Rangers of the Forests,3,6,4
+4,Courier Riders,2,3,3
+4,Menoriad Cavalry,2,4,3
+4,Royal Cavalry,2,6,3
+4,Hunters of the North,3,5,4
+4,Rivermen Mercenaries,1,4,4
+1,Rebel Rivermen Mercenaries,1,4,4
+1,Rebel Rangers of the Forests,3,6,4
+1,Rebel Courier Riders,2,3,3
+1,Rebel Mountain Men,1,4,4
+1,Rebel Axemen of the Vale,1,6,4
+1,Rebel Vale Cavalry,2,4,3
+1,Rebel Light Woodmen,1,4,4
+1,Rebel Woodsmen Archers,3,4,4
+1,Rebel Riders of the Wood,2,3,3

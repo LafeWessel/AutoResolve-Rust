@@ -1,0 +1,49 @@
+Type,Name,Effect,Coin Value,Index,Autoresolve Bonus,Range
+Armor,Warding Armor,+1 R Def,100,1,0,0
+Armor,Warding Armor,+1 R Def,100,2,0,0
+Armor,Plate Armor,+1 M Def,125,3,0,0
+Armor,Plate Armor,+1 M Def,125,4,0,0
+Armor,Shrouding Armor,Enemies must be within 2 hexes to attack,150,5,0,0
+Armor,Crystalline Armor,+2 M Def against non-Cavalry,175,6,0,0
+Armor,Armor of Swiftness,+1 Mvmt and +1 R Def,200,7,1,0
+Armor,Blade Armor,M attackers take 1 hit on failed check of 2 and +1 M and R Def,250,8,1,0
+Armor,Dragonscale Hauberk,+2 M and R Def,300,9,2,0
+Weapon,Piercing Blade,+1 M Att,100,1,0,1
+Weapon,Piercing Blade,+1 M Att,100,2,0,1
+Weapon,Piercing Blade,+1 M Att,100,3,0,1
+Weapon,Thorn Bow,+1 R Att,100,4,0,4
+Weapon,Thorn Bow,+1 R Att,100,5,0,4
+Weapon,Shrieking Bow,+1 R Att and -1 Morale for enemies,150,6,0,4
+Weapon,Fiery Blade,+1 M Att and enemies take 1 hit on failed check of 2,180,7,1,1
+Weapon,Eagle Bow,+2 R Att,225,8,1,5
+Weapon,Dragonbone Blade,+3 M Att,300,9,2,1
+Trinket,Bear Tooth Necklace,+1 Morale,100,1,0,0
+Trinket,Bear Tooth Necklace,+1 Morale,100,2,0,0
+Trinket,Eagle Eye Pendant,+2 to checks vs Hiding units,115,3,0,0
+Trinket,Eagle Eye Pendant,+2 to checks vs Hiding units,115,4,0,0
+Trinket,Griffon Ward,+1 R Def,140,5,0,0
+Trinket,Griffon Ward,+1 R Def,140,6,0,0
+Trinket,Magical Talisman,+1 on spellcasting checks,175,7,1,0
+Trinket,Strange Amulet,+3 Mana cap and +1 per 4 caster levels,200,8,1,0
+Trinket,Draconic Phylactery,+2 on spellcasting checks,300,9,2,0
+Banner,Great Standard,+1 Morale,100,1,1,2
+Banner,Great Standard,+1 Morale,100,2,1,2
+Banner,Great Standard,+1 Morale,100,3,1,2
+Banner,Bear Standard,+1 M Def,125,4,1,2
+Banner,Hawk Standard,+1 R Def,125,5,1,2
+Banner,Legionary Banner,+1 M Def for each adj unit of same type,160,6,1,2
+Banner,Besiegers Banner,+1 R Att and Def,200,7,1,2
+Banner,Banner of the King,+2 Morale,230,8,2,2
+Banner,Dragon Banner,+1 Morale R and M Att and Def,300,9,2,2
+Dragon,Dragon Banner,+1 Morale R and M Att and Def,300,9,2,2
+Dragon,Draconic Phylactery,+2 on spellcasting checks,300,9,2,0
+Dragon,Dragonbone Blade,+3 M Att,300,9,2,1
+Dragon,Dragonscale Hauberk,+2 M and R Def,300,9,2,0
+Follower,Barbarian,+100C from sacking,100,1,0,0
+Follower,Tax Collector,+50C income,150,2,0,0
+Follower,Sapper,-1 Enemy siege hold-out time,200,3,0,0
+Follower,Miner,+75C from ore trade,250,4,0,0
+Follower,Trader,+100C from trade,300,5,0,0
+Follower,Corpse Thief,+1 for treasure rolls,350,6,1,0
+Follower,Watchman,+2 Obedience,400,7,0,0
+Follower,Scholar,-1 Research time,450,8,0,0
