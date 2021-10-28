@@ -83,18 +83,24 @@ mod tests{
         let u = Unit::new(1,String::new(),1,10,0);
         let p = Player::new(vec![u.clone()], g);
         assert_eq!(p.melee_bonus, u.get_bonus());
+        assert_eq!(p.cavalry_bonus, 0);
+        assert_eq!(p.ranged_bonus, 0);
 
         // Cavalry
         let g = General::default();
         let u = Unit::new(1,String::new(),2,10,0);
         let p = Player::new(vec![u.clone()], g);
         assert_eq!(p.cavalry_bonus, u.get_bonus());
+        assert_eq!(p.melee_bonus, 0);
+        assert_eq!(p.ranged_bonus, 0);
 
         // Ranged
         let g = General::default();
         let u = Unit::new(1,String::new(),3,10,0);
         let p = Player::new(vec![u.clone()], g);
         assert_eq!(p.ranged_bonus, u.get_bonus());
+        assert_eq!(p.cavalry_bonus, 0);
+        assert_eq!(p.melee_bonus, 0);
 
     }
 }
