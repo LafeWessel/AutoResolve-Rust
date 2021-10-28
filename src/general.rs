@@ -125,11 +125,10 @@ mod tests{
     #[test]
     fn test_update_bonus(){
         let mut g = General::default();
-        let t = Treasure::new();
-
         assert_eq!(0,g.get_bonus());
 
-        g.set_equipment(t.get_item(equipment_type::Armor).clone());
-        assert!(g.get_bonus() > 0);
+        g.rank = 1;
+        g.update_bonus();
+        assert_eq!(g.get_bonus(), 1);
     }
 }

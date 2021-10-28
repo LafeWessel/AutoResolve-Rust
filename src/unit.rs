@@ -10,6 +10,25 @@ pub struct Unit{
     unit_size: i32,
 }
 
+impl Default for Unit{
+    fn default() -> Self {
+        Unit::new(1,String::new(),1,0,0)
+    }    
+}
+
+impl Clone for Unit{
+    fn clone(&self) -> Self {
+        Unit{
+            faction: self.faction.clone(),
+            name: self.name.clone(),
+            unit_type: self.unit_type.clone(),
+            autoresolve_bonus: self.autoresolve_bonus,
+            unit_size: self.unit_size,
+        }
+    }
+}
+
+
 impl Unit{
     pub fn new(faction_int : u32, name: String, unit_type_int:u32, bonus : i32, size: i32) -> Self{
         Unit{
@@ -53,7 +72,7 @@ impl Unit{
     }
 }
 
-#[derive(Debug,Eq,PartialEq)]
+#[derive(Debug,Eq,PartialEq,Copy, Clone)]
 pub enum unit_type{
     Melee,
     Cavalry,

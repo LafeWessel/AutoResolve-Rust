@@ -61,3 +61,41 @@ impl Player{
     }
 
 }
+
+// TODO add tests for get_soldier_count and calculate_bonuses
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn test_soldier_count(){
+        let g = General::default();
+        let u = Unit::new(1,String::new(),1,0,10);
+        let p = Player::new(vec![u.clone()],g);
+
+        assert_eq!(u.get_size(),p.get_soldier_count());
+    }
+
+    #[test]
+    fn test_calculate_bonuses(){
+        // Melee
+        let g = General::default();
+        let u = Unit::new(1,String::new(),1,10,0);
+        let p = Player::new(vec![u.clone()], g);
+        assert_eq!(p.melee_bonus, u.get_bonus());
+
+        // Cavalry
+        let g = General::default();
+        let u = Unit::new(1,String::new(),2,10,0);
+        let p = Player::new(vec![u.clone()], g);
+        assert_eq!(p.cavalry_bonus, u.get_bonus());
+
+        // Ranged
+        let g = General::default();
+        let u = Unit::new(1,String::new(),3,10,0);
+        let p = Player::new(vec![u.clone()], g);
+        assert_eq!(p.ranged_bonus, u.get_bonus());
+
+    }
+}
