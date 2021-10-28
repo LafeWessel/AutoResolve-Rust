@@ -10,13 +10,13 @@ struct General<'a>{
     banner : &'a Equipment,
     follower : &'a Equipment,
     trinket : &'a Equipment,
-    rank : u32,
+    rank : i32,
     bonus : i32,
 }
 
-impl General<'_>{
-    pub fn new<'a>(armor :  &'a Equipment, weapon : &'a Equipment, banner: &'a Equipment,
-    follower : &'a Equipment, trinket : &'a Equipment, rank : u32) -> Self{
+impl<'a> General<'a>{
+    pub fn new(armor :  &'a Equipment, weapon : &'a Equipment, banner: &'a Equipment,
+    follower : &'a Equipment, trinket : &'a Equipment, rank : i32) -> Self{
         let mut g = General{
             state: general_state::Unharmed,
             armor: armor,
@@ -32,7 +32,7 @@ impl General<'_>{
     }
 
     /// Set piece of equipment based on equipment type
-    pub fn set_equipment(&mut self, item : &Equipment){
+    pub fn set_equipment(&mut self, item : &'a Equipment){
         match item.equip_type(){
             equipment_type::Armor => self.armor = item,
             equipment_type::Weapon => self.weapon = item,
@@ -49,7 +49,7 @@ impl General<'_>{
     }
 
     /// Get general state
-    pub fn get_state(&self ) -> &general_state{
+    pub fn get_state(&self) -> &general_state{
         &self.state
     }
 
