@@ -29,10 +29,15 @@ impl Unit{
         }
     }
 
+    /// Get Faction
+    pub fn get_faction(&self) -> &faction{
+        &self.faction
+    }
+
 }
 
-#[derive(Debug)]
-enum faction {
+#[derive(Debug, PartialEq, Eq)]
+pub enum faction {
     Rebel,
     Beladimir,
     Lerastir,

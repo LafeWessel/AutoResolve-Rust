@@ -1,4 +1,4 @@
-use crate::unit::Unit;
+use crate::unit::{Unit,faction};
 use std::fs;
 use std::borrow::Borrow;
 
@@ -48,4 +48,36 @@ impl Roster{
             println!("{} : {:?}", k, v)
         }
     }
+
+    /// Get all units of a given faction
+    pub fn get_faction_roster(&self, faction: faction) -> Vec<&Unit>{
+        self.units.iter().filter(|u| *u.get_faction() == faction).collect()
+    }
+
+}
+
+
+#[cfg(test)]
+mod test{
+    use super::*;
+
+    #[test]
+    fn test_get_faction_roster(){
+        let r = Roster::new();
+
+        for i in r.get_faction_roster(faction::Menoriad).iter(){
+            assert_eq!(*i.get_faction(),faction::Menoriad);
+        }
+        for i in r.get_faction_roster(faction::Beladimir).iter(){
+            assert_eq!(*i.get_faction(),faction::Beladimir);
+        }
+        for i in r.get_faction_roster(faction::Rebel).iter(){
+            assert_eq!(*i.get_faction(),faction::Rebel);
+        }
+        for i in r.get_faction_roster(faction::Lerastir).iter(){
+            assert_eq!(*i.get_faction(),faction::Lerastir);
+        }
+
+    }
+
 }

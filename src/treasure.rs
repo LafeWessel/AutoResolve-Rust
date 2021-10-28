@@ -59,6 +59,21 @@ impl Treasure{
             .collect::<Vec<&Equipment>>();
         v.choose(&mut rand::thread_rng()).unwrap()
     }
-
 }
 
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    fn get_item_test(){
+        let t = Treasure::new();
+
+        assert_eq!(equipment_type::Armor,*t.get_item(equipment_type::Armor).equip_type());
+        assert_eq!(equipment_type::Weapon,*t.get_item(equipment_type::Weapon).equip_type());
+        assert_eq!(equipment_type::Trinket,*t.get_item(equipment_type::Trinket).equip_type());
+        assert_eq!(equipment_type::Banner,*t.get_item(equipment_type::Banner).equip_type());
+        assert_eq!(equipment_type::Follower,*t.get_item(equipment_type::Follower).equip_type());
+        assert_eq!(equipment_type::Dragon,*t.get_item(equipment_type::Dragon).equip_type());
+    }
+}
