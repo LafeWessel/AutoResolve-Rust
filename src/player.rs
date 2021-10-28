@@ -62,7 +62,6 @@ impl Player{
 
 }
 
-// TODO add tests for get_soldier_count and calculate_bonuses
 
 #[cfg(test)]
 mod tests{
