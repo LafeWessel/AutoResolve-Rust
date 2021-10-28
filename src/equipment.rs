@@ -7,18 +7,24 @@ pub struct Equipment{
     index : usize,
     autoresolve_bonus: i32,
     range : i32,
+    dragon_equipment : bool,
+}
+
+impl Default for Equipment{
+    fn default() -> Self {
+        Equipment::new("Armor",String::from(""),String::from(""),0,0,0,0, false)
+    }
 }
 
 impl Equipment{
     pub fn new(equipment_type_str: &str, name : String, effect : String, value : i32, index : usize,
-    bonus : i32, range: i32) -> Self{
+    bonus : i32, range: i32, dragon : bool) -> Self{
         Equipment{
             equipment_type: match equipment_type_str{
                 "Armor" => equipment_type::Armor,
                 "Weapon" => equipment_type::Weapon,
                 "Trinket" => equipment_type::Trinket,
                 "Banner" => equipment_type::Banner,
-                "Dragon" => equipment_type::Dragon,
                 "Follower" => equipment_type::Follower,
                 _ => panic!(format!("Unable to convert {} to equipment_type", equipment_type_str))
             },
@@ -28,6 +34,7 @@ impl Equipment{
             index: index,
             autoresolve_bonus: bonus,
             range: range,
+            dragon_equipment : dragon,
         }
     }
 
@@ -36,6 +43,10 @@ impl Equipment{
         &self.equipment_type
     }
 
+    /// Get autoresolve bonus
+    pub fn get_bonus(&self) -> i32{
+        self.autoresolve_bonus
+    }
 
 }
 
@@ -45,6 +56,5 @@ pub enum equipment_type{
     Weapon,
     Trinket,
     Banner,
-    Dragon,
     Follower
 }

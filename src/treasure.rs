@@ -31,6 +31,7 @@ impl Treasure{
     }
 
     /// Parse string into new Equipment object
+    /// TODO: Update to use CSV package
     fn read_equipment(&self, line: &str) -> Equipment{
         let values : Vec<&str> = line.split(",").collect();
         Equipment::new(
@@ -41,6 +42,7 @@ impl Treasure{
             values[4].trim().parse().unwrap(),
             values[5].trim().parse().unwrap(),
             values[6].trim().parse().unwrap(),
+            values[7].trim().parse().unwrap(),
         )
     }
 
@@ -74,6 +76,5 @@ mod tests{
         assert_eq!(equipment_type::Trinket,*t.get_item(equipment_type::Trinket).equip_type());
         assert_eq!(equipment_type::Banner,*t.get_item(equipment_type::Banner).equip_type());
         assert_eq!(equipment_type::Follower,*t.get_item(equipment_type::Follower).equip_type());
-        assert_eq!(equipment_type::Dragon,*t.get_item(equipment_type::Dragon).equip_type());
     }
 }

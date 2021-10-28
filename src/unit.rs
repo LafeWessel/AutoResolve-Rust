@@ -1,3 +1,5 @@
+use crate::faction::faction;
+
 #[derive(Debug)]
 pub struct Unit{
     faction: faction,
@@ -34,14 +36,6 @@ impl Unit{
         &self.faction
     }
 
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum faction {
-    Rebel,
-    Beladimir,
-    Lerastir,
-    Menoriad,
 }
 
 #[derive(Debug)]
