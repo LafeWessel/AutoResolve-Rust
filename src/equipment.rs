@@ -16,6 +16,21 @@ impl Default for Equipment{
     }
 }
 
+impl Clone for Equipment{
+    fn clone(&self) -> Self {
+        Equipment{
+            equipment_type: self.equipment_type.clone(),
+            name: self.name.clone(),
+            effect: self.effect.clone(),
+            coin_value: self.coin_value,
+            index: self.index,
+            autoresolve_bonus: self.autoresolve_bonus,
+            range: self.range,
+            dragon_equipment: self.dragon_equipment,
+        }
+    }
+}
+
 impl Equipment{
     pub fn new(equipment_type_str: &str, name : String, effect : String, value : i32, index : usize,
     bonus : i32, range: i32, dragon : bool) -> Self{
@@ -50,7 +65,7 @@ impl Equipment{
 
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum equipment_type{
     Armor = 1,
     Weapon,

@@ -8,6 +8,7 @@ mod unit;
 mod equipment;
 mod faction;
 mod general;
+mod player;
 
 fn main() {
     let cfg = config::new();

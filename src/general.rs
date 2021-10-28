@@ -3,20 +3,32 @@ use crate::equipment::{Equipment, equipment_type};
 use std::ops::Deref;
 use std::borrow::Borrow;
 
-struct General<'a>{
+pub struct General{
     state : general_state,
-    armor : &'a Equipment,
-    weapon : &'a Equipment,
-    banner : &'a Equipment,
-    follower : &'a Equipment,
-    trinket : &'a Equipment,
+    armor : Equipment,
+    weapon : Equipment,
+    banner : Equipment,
+    follower : Equipment,
+    trinket : Equipment,
     rank : i32,
     bonus : i32,
 }
 
-impl<'a> General<'a>{
-    pub fn new(armor :  &'a Equipment, weapon : &'a Equipment, banner: &'a Equipment,
-    follower : &'a Equipment, trinket : &'a Equipment, rank : i32) -> Self{
+impl Default for General{
+    fn default() -> Self {
+        let armor = Equipment::default();
+        let weapon = Equipment::default();
+        let banner = Equipment::default();
+        let trinket = Equipment::default();
+        let follower = Equipment::default();
+
+        General::new(armor, weapon, banner, follower,trinket, 0)
+    }
+}
+
+impl General{
+    pub fn new(armor :  Equipment, weapon : Equipment, banner: Equipment,
+    follower : Equipment, trinket : Equipment, rank : i32) -> Self{
         let mut g = General{
             state: general_state::Unharmed,
             armor: armor,
@@ -32,7 +44,7 @@ impl<'a> General<'a>{
     }
 
     /// Set piece of equipment based on equipment type
-    pub fn set_equipment(&mut self, item : &'a Equipment){
+    pub fn set_equipment(&mut self, item : Equipment){
         match item.equip_type(){
             equipment_type::Armor => self.armor = item,
             equipment_type::Weapon => self.weapon = item,
@@ -44,13 +56,13 @@ impl<'a> General<'a>{
     }
 
     /// Get current piece of equipment based on type
-    pub fn get_equipment(&self, equip_type : equipment_type) -> &'a Equipment{
+    pub fn get_equipment(&self, equip_type : equipment_type) -> &Equipment{
         match equip_type{
-            equipment_type::Armor => self.armor,
-            equipment_type::Weapon => self.weapon,
-            equipment_type::Banner => self.banner,
-            equipment_type::Trinket => self.trinket,
-            equipment_type::Follower => self.follower,
+            equipment_type::Armor => &self.armor,
+            equipment_type::Weapon => &self.weapon,
+            equipment_type::Banner => &self.banner,
+            equipment_type::Trinket => &self.trinket,
+            equipment_type::Follower => &self.follower,
         }
     }
 
@@ -95,35 +107,29 @@ mod tests{
     #[test]
     fn test_set_equipment(){
         let r = Treasure::new();
-        let e = Equipment::default();
-        let mut g = General::new(&e, &e,
-                             &e, &e,
-                             &e, 0);
+        let mut g = General::default();
 
-        g.set_equipment(r.get_item(equipment_type::Armor));
+        g.set_equipment(r.get_item(equipment_type::Armor).clone());
         assert_eq!(equipment_type::Armor, *g.get_equipment(equipment_type::Armor).equip_type());
-        g.set_equipment(r.get_item(equipment_type::Weapon));
+        g.set_equipment(r.get_item(equipment_type::Weapon).clone());
         assert_eq!(equipment_type::Weapon, *g.get_equipment(equipment_type::Weapon).equip_type());
-        g.set_equipment(r.get_item(equipment_type::Banner));
+        g.set_equipment(r.get_item(equipment_type::Banner).clone());
         assert_eq!(equipment_type::Banner, *g.get_equipment(equipment_type::Banner).equip_type());
-        g.set_equipment(r.get_item(equipment_type::Trinket));
+        g.set_equipment(r.get_item(equipment_type::Trinket).clone());
         assert_eq!(equipment_type::Trinket, *g.get_equipment(equipment_type::Trinket).equip_type());
-        g.set_equipment(r.get_item(equipment_type::Follower));
+        g.set_equipment(r.get_item(equipment_type::Follower).clone());
         assert_eq!(equipment_type::Follower, *g.get_equipment(equipment_type::Follower).equip_type());
 
     }
 
     #[test]
     fn test_update_bonus(){
-        let e = Equipment::default();
-        let mut g = General::new(&e, &e,
-                                 &e, &e,
-                                 &e, 0);
+        let mut g = General::default();
         let t = Treasure::new();
 
         assert_eq!(0,g.get_bonus());
 
-        g.set_equipment(t.get_item(equipment_type::Armor));
+        g.set_equipment(t.get_item(equipment_type::Armor).clone());
         assert!(g.get_bonus() > 0);
     }
 }
