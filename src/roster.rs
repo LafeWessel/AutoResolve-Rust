@@ -24,18 +24,24 @@ impl Roster{
 
         // Read through lines, skip first as it is the column headers
         for line in file.lines().skip(1){
-            let values : Vec<&str> = line.split(",").collect();
-            // println!("{:?}", values);
-            self.units.push(Unit::new(
-                values[0].trim().parse().unwrap(),
-                values[1].trim().parse().unwrap(),
-                values[2].trim().parse().unwrap(),
-                values[3].trim().parse().unwrap(),
-                values[4].trim().parse().unwrap(),
-            ))
+            self.units.push(self.read_unit(line));
         }
     }
 
+    /// Parse string into Unit object
+    pub fn read_unit(&self, line : &str) -> Unit{
+        let values : Vec<&str> = line.split(",").collect();
+        // println!("{:?}", values);
+        Unit::new(
+            values[0].trim().parse().unwrap(),
+            values[1].trim().parse().unwrap(),
+            values[2].trim().parse().unwrap(),
+            values[3].trim().parse().unwrap(),
+            values[4].trim().parse().unwrap(),
+        )
+    }
+
+    /// Print all items in units vector
     pub fn print_units(&self){
         println!("Units in roster:");
         for (k,v) in self.units.iter().enumerate(){

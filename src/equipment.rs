@@ -30,11 +30,18 @@ impl Equipment{
             range: range,
         }
     }
+
+    /// Get equipment type
+    pub fn equip_type(&self) -> &equipment_type{
+        &self.equipment_type
+    }
+
+
 }
 
-#[derive(Debug)]
-enum equipment_type{
-    Armor,
+#[derive(Debug, PartialEq, Eq)]
+pub enum equipment_type{
+    Armor = 1,
     Weapon,
     Trinket,
     Banner,

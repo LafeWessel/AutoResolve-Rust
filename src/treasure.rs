@@ -1,5 +1,6 @@
-use crate::equipment::Equipment;
+use crate::equipment::{Equipment, equipment_type};
 use std::fs;
+use rand::seq::SliceRandom;
 
 pub struct Treasure{
     file_path : String,
@@ -25,25 +26,39 @@ impl Treasure{
 
         // Read through lines, skip first as it is the column headers
         for line in file.lines().skip(1){
-            let values : Vec<&str> = line.split(",").collect();
-            // println!("{:?}", values);
-            self.items.push(Equipment::new(
-                values[0].trim(),
-                values[1].trim().parse().unwrap(),
-                values[2].trim().parse().unwrap(),
-                values[3].trim().parse().unwrap(),
-                values[4].trim().parse().unwrap(),
-                values[5].trim().parse().unwrap(),
-                values[6].trim().parse().unwrap(),
-            ))
+            self.items.push(self.read_equipment(line));
         }
     }
 
+    /// Parse string into new Equipment object
+    fn read_equipment(&self, line: &str) -> Equipment{
+        let values : Vec<&str> = line.split(",").collect();
+        Equipment::new(
+            values[0].trim(),
+            values[1].trim().parse().unwrap(),
+            values[2].trim().parse().unwrap(),
+            values[3].trim().parse().unwrap(),
+            values[4].trim().parse().unwrap(),
+            values[5].trim().parse().unwrap(),
+            values[6].trim().parse().unwrap(),
+        )
+    }
+
+    /// Print all items in items vector
     pub fn print_items(&self){
         println!("Items in Treasure:");
         for (k,v) in self.items.iter().enumerate(){
             println!("{} : {:?}", k, v);
         }
     }
+
+    /// Get random equipment of equip_type
+    pub fn get_item(&self, equip_type: equipment_type) -> &Equipment{
+        let v = self.items.iter()
+            .filter(|e| *e.equip_type() == equip_type)
+            .collect::<Vec<&Equipment>>();
+        v.choose(&mut rand::thread_rng()).unwrap()
+    }
+
 }
 
