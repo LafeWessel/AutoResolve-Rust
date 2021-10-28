@@ -11,6 +11,7 @@ mod general;
 mod player;
 
 fn main() {
+
     let cfg = config::new();
 }
 

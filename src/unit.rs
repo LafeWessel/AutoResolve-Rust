@@ -1,4 +1,5 @@
 use crate::faction::faction;
+use crate::equipment::equipment_type;
 
 #[derive(Debug)]
 pub struct Unit{
@@ -36,10 +37,24 @@ impl Unit{
         &self.faction
     }
 
+    /// Get unit type
+    pub fn get_type(&self) -> &unit_type{
+        &self.unit_type
+    }
+
+    /// Get autoresolve bonus
+    pub fn get_bonus(&self) -> i32{
+        self.autoresolve_bonus
+    }
+
+    /// Get unit size
+    pub fn get_size(&self) -> i32{
+        self.unit_size
+    }
 }
 
-#[derive(Debug)]
-enum unit_type{
+#[derive(Debug,Eq,PartialEq)]
+pub enum unit_type{
     Melee,
     Cavalry,
     Ranged,
