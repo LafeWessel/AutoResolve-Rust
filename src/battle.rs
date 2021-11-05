@@ -2,6 +2,7 @@ use crate::treasure::Treasure;
 use crate::player::Player;
 use crate::monster::monster_type;
 use std::borrow::Borrow;
+use crate::equipment::Equipment;
 
 struct Battle<'a>{
     battle_type : battle_type,
@@ -11,17 +12,46 @@ struct Battle<'a>{
 }
 
 impl Battle<'_>{
+    // TODO implement autoresolve()
+    fn autoresolve(&self){
+        let outcome = self.calculate_outcome();
+        let casualties = self.calculate_casualties(&outcome);
+        self.assign_casualties(&casualties);
+        let treasure_results = self.treasure_results(&outcome);
+
+    }
+
+
     //TODO implement calculate_outcome()
     fn calculate_outcome(&self) -> battle_outcome{
-        battle_outcome::Draw
+        let mut total : f32 = 0.0;
+
+        // get player autoresolve bonuses
+        total += self.attacker.get_autoresolve_bonus() as f32;
+        total -= self.defender.get_autoresolve_bonus() as f32;
+        // add random bonuses
+        total += self.battle_randoms() as f32;
+        total -= self.battle_randoms() as f32;
+
+        // calculate RPS bonuses
+        total += 1.5 * (self.attacker.get_cavalry_bonus() - self.defender.get_ranged_bonus()) as f32;
+        total += 1.5 * (self.attacker.get_melee_bonus() - self.defender.get_cavalry_bonus()) as f32;
+        total += 1.5 * (self.attacker.get_ranged_bonus() - self.defender.get_melee_bonus()) as f32;
+
+        // add battle_type bonuses
+        total += self.battle_type.get_calculation() as f32;
+
+        // determine outcome
+        battle_outcome::determine_outcome(total)
+
     }
 
     // TODO implement calculate_casualties()
-    fn calculate_casualties(&self){
-
+    fn calculate_casualties(&self, outcome : &battle_outcome) -> battle_casualties{
+        battle_casualties{}
     }
     // TODO implement assign_casualties()
-    fn assign_casualties(&self){
+    fn assign_casualties(&self, casualties : &battle_casualties){
 
     }
     // TODO implement battle_output()
@@ -29,9 +59,26 @@ impl Battle<'_>{
 
     }
     // TODO implement treasure_results()
-    fn treasure_results(){
-
+    fn treasure_results(&self, outcome: &battle_outcome) -> treasure_results{
+        treasure_results::None
     }
+
+    // TODO implement battle_randoms()
+    fn battle_randoms(&self) -> i32
+    {
+        0
+    }
+}
+
+struct battle_casualties{
+
+}
+
+enum treasure_results<'a>{
+    None,
+    Attacker{reward: &'a Equipment},
+    Defender{reward: &'a Equipment},
+    Both{attacker: &'a Equipment, defender: &'a Equipment}
 }
 
 
@@ -98,6 +145,36 @@ enum battle_outcome{
     CloseDefeat,
     ValiantDefeat,
     CrushingDefeat,
+}
+
+impl battle_outcome{
+    // TODO refactor to match statment
+    fn determine_outcome(result : f32) -> battle_outcome{
+        //All results are in relation to the attacker.
+        //Victory
+        if result > 2.0 {
+            if result >= 20.0 {
+                return battle_outcome::DecisiveVictory;
+            }
+            if result >= 10.0 {
+                return battle_outcome::HeroicVictory;
+            }
+            return battle_outcome::CloseVictory;
+        }
+        //Defeat
+        if result < -2.0 {
+            if result <= -20.0 {
+                return battle_outcome::CrushingDefeat;
+            }
+            if result <= -10.0 {
+                return battle_outcome::ValiantDefeat;
+            }
+            return battle_outcome::CloseDefeat;
+        }
+        //Draw
+        battle_outcome::Draw
+
+    }
 }
 
 // TODO write unit tests

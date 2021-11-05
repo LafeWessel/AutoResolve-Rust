@@ -5,13 +5,15 @@ use crate::faction::faction;
 pub struct Player{
     units: Vec<Unit>,
     gen: General,
+    reinforcements  : i32,
+    adv_combat : bool,
     faction : faction,
+
+    // Bonuses
     melee_bonus : i32,
     cavalry_bonus : i32,
     ranged_bonus : i32,
     leader_bonus : i32,
-    reinforcements  : i32,
-    adv_combat : bool,
 }
 
 impl Default for Player{
@@ -43,16 +45,31 @@ impl Player{
         self.melee_bonus = self.units.iter()
             .filter(|u| *u.get_type() == unit_type::Melee)
             .map(|u| u.get_bonus())
-            .sum::<i32>();
+            .sum::<i32>() + (4 * self.reinforcements);
         self.cavalry_bonus = self.units.iter()
             .filter(|u| *u.get_type() == unit_type::Cavalry)
             .map(|u| u.get_bonus())
-            .sum::<i32>();
+            .sum::<i32>() + (4 * self.reinforcements);
         self.ranged_bonus = self.units.iter()
             .filter(|u| *u.get_type() == unit_type::Ranged)
             .map(|u| u.get_bonus())
-            .sum::<i32>();
+            .sum::<i32>() + (4 * self.reinforcements);
         self.leader_bonus = self.gen.get_bonus() + if self.adv_combat {5} else {0};
+    }
+
+    /// Get melee bonus
+    pub fn get_melee_bonus(&self) -> i32{
+        self.melee_bonus
+    }
+
+    /// Get cavalry bonus
+    pub fn get_cavalry_bonus(&self) -> i32{
+        self.cavalry_bonus
+    }
+
+    /// Get ranged bonus
+    pub fn get_ranged_bonus(&self) -> i32{
+        self.ranged_bonus
     }
 
     /// Get number of soldiers Player has
@@ -60,6 +77,11 @@ impl Player{
         self.units.iter().map(|u| u.get_size()).sum::<i32>()
     }
 
+    /// Get overall autoresolve bonus
+    pub fn get_autoresolve_bonus(&self) -> i32
+    {
+        self.leader_bonus + self.melee_bonus + self.ranged_bonus + self.cavalry_bonus
+    }
 }
 
 
@@ -103,4 +125,8 @@ mod tests{
         assert_eq!(p.melee_bonus, 0);
 
     }
+
+    // TODO add tests for reinforcements
+
+    // TODO add tests for advanced combat deck
 }

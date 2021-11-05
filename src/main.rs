@@ -36,4 +36,4 @@ impl config{
 
 // TODO implement BattleData: saving data about battles
 
-// TODO implement CLI
+// TODO implement CLI using Rust equivalent of argparse
