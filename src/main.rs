@@ -31,6 +31,7 @@ impl config{
         }
     }
 }
+// TODO implement Battle: store and calculate data for each kind of Battle
 
 // TODO implement TestBattle: randomized testing of battles
 

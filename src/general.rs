@@ -93,7 +93,7 @@ impl General{
 }
 
 
-enum general_state{
+pub enum general_state{
     Unharmed,
     Wounded,
     Slain,

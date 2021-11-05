@@ -3,6 +3,8 @@ use crate::player::Player;
 use crate::monster::monster_type;
 use std::borrow::Borrow;
 use crate::equipment::Equipment;
+use crate::general::general_state;
+use rand::Rng;
 
 struct Battle<'a>{
     battle_type : battle_type,
@@ -48,7 +50,12 @@ impl Battle<'_>{
 
     // TODO implement calculate_casualties()
     fn calculate_casualties(&self, outcome : &battle_outcome) -> battle_casualties{
-        battle_casualties{}
+        battle_casualties{
+            state: general_state::Unharmed,
+            upgrades: 0,
+            casualties: 0,
+            unit_casualties: 0
+        }
     }
     // TODO implement assign_casualties()
     fn assign_casualties(&self, casualties : &battle_casualties){
@@ -60,25 +67,34 @@ impl Battle<'_>{
     }
     // TODO implement treasure_results()
     fn treasure_results(&self, outcome: &battle_outcome) -> treasure_results{
-        treasure_results::None
+        treasure_results{ attacker: None, defender: None }
     }
 
     // TODO implement battle_randoms()
     fn battle_randoms(&self) -> i32
     {
-        0
+        let mut rng = rand::thread_rng();
+        // sum of 10x random in range 1-10
+        let mut sum = 0;
+        for _ in 0..10 {
+            sum += (rng.gen::<f32>() * 10.0) as i32;
+        }
+        sum
     }
 }
 
-struct battle_casualties{
 
+
+struct battle_casualties{
+    state : general_state,
+    upgrades : i32,
+    casualties : i32,
+    unit_casualties : i32,
 }
 
-enum treasure_results<'a>{
-    None,
-    Attacker{reward: &'a Equipment},
-    Defender{reward: &'a Equipment},
-    Both{attacker: &'a Equipment, defender: &'a Equipment}
+struct treasure_results<'a>{
+    attacker : Option<&'a Equipment>,
+    defender : Option<&'a Equipment>,
 }
 
 
@@ -148,7 +164,7 @@ enum battle_outcome{
 }
 
 impl battle_outcome{
-    // TODO refactor to match statment
+    // TODO refactor to match statement
     fn determine_outcome(result : f32) -> battle_outcome{
         //All results are in relation to the attacker.
         //Victory
@@ -177,4 +193,7 @@ impl battle_outcome{
     }
 }
 
-// TODO write unit tests
+// TODO write unit tests for battle_outcome
+// TODO write unit tests for town defenses
+// TODO write unit tests for battle_type
+// TODO write unit tests for Battle
