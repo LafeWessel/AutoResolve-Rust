@@ -63,6 +63,11 @@ impl Equipment{
         self.autoresolve_bonus
     }
 
+    /// Get dragon_equipment
+    pub fn get_is_dragon(&self) -> bool{
+        self.dragon_equipment
+    }
+
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]

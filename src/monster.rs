@@ -1,13 +1,6 @@
 use crate::treasure::Treasure;
 use crate::equipment::equipment_type;
 
-pub struct Monster<'a>{
-    mon_type : monster_type,
-    autoresolve_bonus : i32,
-    coin_reward : i32,
-    treasure : &'a Treasure,
-}
-
 pub enum monster_type{
     Minotaur ,
     Hobgoblin,
@@ -31,7 +24,7 @@ impl monster_type{
     }
 
     /// Get autoresolve value for a given monster type
-    fn autoresolve_value(&self) -> i32{
+    pub fn autoresolve_value(&self) -> i32{
         match *self{
             monster_type::Minotaur => 20,
             monster_type::Hobgoblin => 30,
@@ -54,3 +47,5 @@ impl monster_type{
         }
     }
 }
+
+// TODO write unit tests
