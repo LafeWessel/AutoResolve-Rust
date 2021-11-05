@@ -1,13 +1,13 @@
-use crate::unit::{Unit, unit_type};
+use crate::unit::{Unit, UnitType};
 use crate::general::General;
-use crate::faction::faction;
+use crate::faction::Faction;
 
 pub struct Player{
     units: Vec<Unit>,
     gen: General,
     reinforcements  : i32,
     adv_combat : bool,
-    faction : faction,
+    faction : Faction,
 
     // Bonuses
     melee_bonus : i32,
@@ -28,7 +28,7 @@ impl Player{
         let mut p = Player{
             units: units,
             gen : general,
-            faction: faction::Rebel,
+            faction: Faction::Rebel,
             melee_bonus: 0,
             cavalry_bonus: 0,
             ranged_bonus: 0,
@@ -43,15 +43,15 @@ impl Player{
     /// Calculate autoresolve bonuses for each type of unit
     fn calculate_bonuses(&mut self){
         self.melee_bonus = self.units.iter()
-            .filter(|u| *u.get_type() == unit_type::Melee)
+            .filter(|u| *u.get_type() == UnitType::Melee)
             .map(|u| u.get_bonus())
             .sum::<i32>() + (4 * self.reinforcements);
         self.cavalry_bonus = self.units.iter()
-            .filter(|u| *u.get_type() == unit_type::Cavalry)
+            .filter(|u| *u.get_type() == UnitType::Cavalry)
             .map(|u| u.get_bonus())
             .sum::<i32>() + (4 * self.reinforcements);
         self.ranged_bonus = self.units.iter()
-            .filter(|u| *u.get_type() == unit_type::Ranged)
+            .filter(|u| *u.get_type() == UnitType::Ranged)
             .map(|u| u.get_bonus())
             .sum::<i32>() + (4 * self.reinforcements);
         self.leader_bonus = self.gen.get_bonus() + if self.adv_combat {5} else {0};

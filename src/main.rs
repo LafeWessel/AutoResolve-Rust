@@ -1,4 +1,3 @@
-use crate::equipment::equipment_type;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
 
@@ -14,18 +13,18 @@ mod monster;
 
 fn main() {
 
-    let cfg = config::new();
+    let cfg = Config::new();
 }
 
 
-struct config {
+struct Config {
     roster : Roster,
     treasure : Treasure,
 }
 
-impl config{
+impl Config {
     pub fn new() -> Self{
-        config{
+        Config {
             roster : Roster::new(),
             treasure : Treasure::new(),
         }

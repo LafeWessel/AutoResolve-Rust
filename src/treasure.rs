@@ -1,4 +1,4 @@
-use crate::equipment::{Equipment, equipment_type};
+use crate::equipment::{Equipment, EquipmentType};
 use std::fs;
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -56,7 +56,7 @@ impl Treasure{
     }
 
     /// Get random equipment of equip_type
-    pub fn get_item(&self, equip_type: equipment_type) -> &Equipment{
+    pub fn get_item(&self, equip_type: EquipmentType) -> &Equipment{
         let v = self.items.iter()
             .filter(|e| *e.equip_type() == equip_type)
             .collect::<Vec<&Equipment>>();
@@ -75,11 +75,11 @@ impl Treasure{
     pub fn find_equipment(&self) -> &Equipment{
         let mut rng = rand::thread_rng();
         match rng.gen_range(1..6) {
-            1 => self.get_item(equipment_type::Armor),
-            2 => self.get_item(equipment_type::Weapon),
-            3 => self.get_item(equipment_type::Trinket),
-            4 => self.get_item(equipment_type::Banner),
-            5 => self.get_item(equipment_type::Follower),
+            1 => self.get_item(EquipmentType::Armor),
+            2 => self.get_item(EquipmentType::Weapon),
+            3 => self.get_item(EquipmentType::Trinket),
+            4 => self.get_item(EquipmentType::Banner),
+            5 => self.get_item(EquipmentType::Follower),
             i => panic!(format!("RNG {} not in [1..5]!",i)),
         }
     }
@@ -93,11 +93,11 @@ mod tests{
     fn get_item_test(){
         let t = Treasure::new();
 
-        assert_eq!(equipment_type::Armor,*t.get_item(equipment_type::Armor).equip_type());
-        assert_eq!(equipment_type::Weapon,*t.get_item(equipment_type::Weapon).equip_type());
-        assert_eq!(equipment_type::Trinket,*t.get_item(equipment_type::Trinket).equip_type());
-        assert_eq!(equipment_type::Banner,*t.get_item(equipment_type::Banner).equip_type());
-        assert_eq!(equipment_type::Follower,*t.get_item(equipment_type::Follower).equip_type());
+        assert_eq!(EquipmentType::Armor, *t.get_item(EquipmentType::Armor).equip_type());
+        assert_eq!(EquipmentType::Weapon, *t.get_item(EquipmentType::Weapon).equip_type());
+        assert_eq!(EquipmentType::Trinket, *t.get_item(EquipmentType::Trinket).equip_type());
+        assert_eq!(EquipmentType::Banner, *t.get_item(EquipmentType::Banner).equip_type());
+        assert_eq!(EquipmentType::Follower, *t.get_item(EquipmentType::Follower).equip_type());
     }
 
     #[test]

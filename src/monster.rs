@@ -1,5 +1,4 @@
-use crate::treasure::Treasure;
-use crate::equipment::equipment_type;
+use crate::equipment::EquipmentType;
 
 #[derive(Debug)]
 pub enum monster_type{
@@ -37,13 +36,13 @@ impl monster_type{
     }
 
     /// Get list of equipment types as reward for given monster type, return empty for Dragon
-    fn rewards(&self) -> Vec<equipment_type>{
+    fn rewards(&self) -> Vec<EquipmentType>{
         match *self{
-            monster_type::Minotaur => vec![equipment_type::Weapon],
-            monster_type::Hobgoblin => vec![equipment_type::Weapon,equipment_type::Armor],
-            monster_type::Troll => vec![equipment_type::Weapon,equipment_type::Trinket],
-            monster_type::Giant => vec![equipment_type::Weapon,equipment_type::Trinket,equipment_type::Armor],
-            monster_type::Demon => vec![equipment_type::Armor,equipment_type::Banner],
+            monster_type::Minotaur => vec![EquipmentType::Weapon],
+            monster_type::Hobgoblin => vec![EquipmentType::Weapon, EquipmentType::Armor],
+            monster_type::Troll => vec![EquipmentType::Weapon, EquipmentType::Trinket],
+            monster_type::Giant => vec![EquipmentType::Weapon, EquipmentType::Trinket, EquipmentType::Armor],
+            monster_type::Demon => vec![EquipmentType::Armor, EquipmentType::Banner],
             monster_type::Dragon => vec![],
         }
     }

@@ -1,9 +1,8 @@
 use crate::treasure::Treasure;
 use crate::player::Player;
 use crate::monster::monster_type;
-use std::borrow::Borrow;
-use crate::equipment::{Equipment, equipment_type};
-use crate::general::general_state;
+use crate::equipment::{Equipment, EquipmentType};
+use crate::general::GeneralState;
 use rand::Rng;
 
 struct Battle<'a>{
@@ -73,19 +72,19 @@ impl Battle<'_>{
         let def_up = att_cas / 6;
 
         // Attacker General state
-        let mut att_gen = general_state::Unharmed;
+        let mut att_gen = GeneralState::Unharmed;
         if rng.gen_range(1..9) <= 2{
-            att_gen = general_state::Wounded;
+            att_gen = GeneralState::Wounded;
             if rng.gen_range(1..9) <= 2{
-                att_gen = general_state::Slain;
+                att_gen = GeneralState::Slain;
             }
         }
         // Defender General state
-        let mut def_gen = general_state::Unharmed;
+        let mut def_gen = GeneralState::Unharmed;
         if rng.gen_range(1..9) <= 2{
-            def_gen = general_state::Wounded;
+            def_gen = GeneralState::Wounded;
             if rng.gen_range(1..9) <= 2{
-               def_gen = general_state::Slain;
+               def_gen = GeneralState::Slain;
             }
         }
 
@@ -126,7 +125,7 @@ impl Battle<'_>{
     /// Determine if treasure is found by a given player
     fn find_treasure(&self, player : &Player) -> Option<&Equipment>{
         let mut rng = rand::thread_rng();
-        let bonus = player.get_general().get_equipment(equipment_type::Follower).get_bonus();
+        let bonus = player.get_general().get_equipment(EquipmentType::Follower).get_bonus();
         if rng.gen_range(1..9) + bonus >= 5{
             return Some(self.treasure.find_equipment());
         }
@@ -152,7 +151,7 @@ struct BattleCasualties{
 }
 
 struct Casualties {
-    state : general_state,
+    state : GeneralState,
     upgrades : i32,
     casualties : i32,
     unit_casualties : i32,

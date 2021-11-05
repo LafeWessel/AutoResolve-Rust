@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub enum faction {
+pub enum Faction {
     Rebel,
     Beladimir,
     Lerastir,

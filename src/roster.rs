@@ -1,7 +1,6 @@
 use crate::unit::Unit;
-use crate::faction::faction;
+use crate::faction::Faction;
 use std::fs;
-use std::borrow::Borrow;
 
 #[derive(Debug)]
 pub struct Roster{
@@ -51,8 +50,8 @@ impl Roster{
         }
     }
 
-    /// Get all units of a given faction
-    pub fn get_faction_roster(&self, faction: faction) -> Vec<&Unit>{
+    /// Get all units of a given Faction
+    pub fn get_faction_roster(&self, faction: Faction) -> Vec<&Unit>{
         self.units.iter().filter(|u| *u.get_faction() == faction).collect()
     }
 
@@ -67,17 +66,17 @@ mod tests{
     fn test_get_faction_roster(){
         let r = Roster::new();
 
-        for i in r.get_faction_roster(faction::Menoriad).iter(){
-            assert_eq!(*i.get_faction(),faction::Menoriad);
+        for i in r.get_faction_roster(Faction::Menoriad).iter(){
+            assert_eq!(*i.get_faction(), Faction::Menoriad);
         }
-        for i in r.get_faction_roster(faction::Beladimir).iter(){
-            assert_eq!(*i.get_faction(),faction::Beladimir);
+        for i in r.get_faction_roster(Faction::Beladimir).iter(){
+            assert_eq!(*i.get_faction(), Faction::Beladimir);
         }
-        for i in r.get_faction_roster(faction::Rebel).iter(){
-            assert_eq!(*i.get_faction(),faction::Rebel);
+        for i in r.get_faction_roster(Faction::Rebel).iter(){
+            assert_eq!(*i.get_faction(), Faction::Rebel);
         }
-        for i in r.get_faction_roster(faction::Lerastir).iter(){
-            assert_eq!(*i.get_faction(),faction::Lerastir);
+        for i in r.get_faction_roster(Faction::Lerastir).iter(){
+            assert_eq!(*i.get_faction(), Faction::Lerastir);
         }
 
     }

@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub struct Equipment{
-    equipment_type : equipment_type,
+    equipment_type : EquipmentType,
     name : String,
     effect : String,
     coin_value : i32,
@@ -36,12 +36,12 @@ impl Equipment{
     bonus : i32, range: i32, dragon : bool) -> Self{
         Equipment{
             equipment_type: match equipment_type_str{
-                "Armor" => equipment_type::Armor,
-                "Weapon" => equipment_type::Weapon,
-                "Trinket" => equipment_type::Trinket,
-                "Banner" => equipment_type::Banner,
-                "Follower" => equipment_type::Follower,
-                _ => panic!(format!("Unable to convert {} to equipment_type", equipment_type_str))
+                "Armor" => EquipmentType::Armor,
+                "Weapon" => EquipmentType::Weapon,
+                "Trinket" => EquipmentType::Trinket,
+                "Banner" => EquipmentType::Banner,
+                "Follower" => EquipmentType::Follower,
+                _ => panic!(format!("Unable to convert {} to EquipmentType", equipment_type_str))
             },
             name: name,
             effect: effect,
@@ -54,7 +54,7 @@ impl Equipment{
     }
 
     /// Get equipment type
-    pub fn equip_type(&self) -> &equipment_type{
+    pub fn equip_type(&self) -> &EquipmentType {
         &self.equipment_type
     }
 
@@ -76,7 +76,7 @@ impl Equipment{
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub enum equipment_type{
+pub enum EquipmentType {
     Armor = 1,
     Weapon,
     Trinket,
