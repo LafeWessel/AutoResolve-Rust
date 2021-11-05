@@ -84,4 +84,11 @@ mod tests{
         assert_eq!(equipment_type::Banner,*t.get_item(equipment_type::Banner).equip_type());
         assert_eq!(equipment_type::Follower,*t.get_item(equipment_type::Follower).equip_type());
     }
+
+    #[test]
+    fn get_dragon_test(){
+        let t = Treasure::new();
+
+        assert!(t.get_dragon_equipment().get_name().contains("Dragon"));
+    }
 }

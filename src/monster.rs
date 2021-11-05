@@ -48,5 +48,3 @@ impl monster_type{
         }
     }
 }
-
-// TODO write unit tests

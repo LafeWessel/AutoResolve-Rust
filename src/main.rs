@@ -31,3 +31,9 @@ impl config{
         }
     }
 }
+
+// TODO implement TestBattle: randomized testing of battles
+
+// TODO implement BattleData: saving data about battles
+
+// TODO implement CLI

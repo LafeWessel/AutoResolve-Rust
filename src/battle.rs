@@ -17,13 +17,21 @@ impl Battle<'_>{
     }
 
     // TODO implement calculate_casualties()
+    fn calculate_casualties(&self){
 
+    }
     // TODO implement assign_casualties()
+    fn assign_casualties(&self){
 
+    }
     // TODO implement battle_output()
+    fn battle_output(&self){
 
+    }
     // TODO implement treasure_results()
+    fn treasure_results(){
 
+    }
 }
 
 

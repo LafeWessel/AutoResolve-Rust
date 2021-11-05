@@ -68,6 +68,11 @@ impl Equipment{
         self.dragon_equipment
     }
 
+    /// Get equipment name
+    pub fn get_name(&self) -> &str{
+        self.name.as_str()
+    }
+
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
