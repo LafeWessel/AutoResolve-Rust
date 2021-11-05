@@ -9,6 +9,7 @@ mod equipment;
 mod faction;
 mod general;
 mod player;
+mod battle;
 
 fn main() {
 
