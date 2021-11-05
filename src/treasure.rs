@@ -1,6 +1,7 @@
 use crate::equipment::{Equipment, equipment_type};
 use std::fs;
 use rand::seq::SliceRandom;
+use rand::Rng;
 
 pub struct Treasure{
     file_path : String,
@@ -62,11 +63,25 @@ impl Treasure{
         v.choose(&mut rand::thread_rng()).unwrap()
     }
 
+    /// Get a random equipment that is Dragon
     pub fn get_dragon_equipment(&self) -> &Equipment{
         let v = self.items.iter()
             .filter(|e| e.get_is_dragon())
             .collect::<Vec<&Equipment>>();
         v.choose(&mut rand::thread_rng()).unwrap()
+    }
+
+    /// Find equipment for battle results
+    pub fn find_equipment(&self) -> &Equipment{
+        let mut rng = rand::thread_rng();
+        match rng.gen_range(1..6) {
+            1 => self.get_item(equipment_type::Armor),
+            2 => self.get_item(equipment_type::Weapon),
+            3 => self.get_item(equipment_type::Trinket),
+            4 => self.get_item(equipment_type::Banner),
+            5 => self.get_item(equipment_type::Follower),
+            i => panic!(format!("RNG {} not in [1..5]!",i)),
+        }
     }
 }
 

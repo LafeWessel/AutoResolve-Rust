@@ -82,6 +82,11 @@ impl Player{
     {
         self.leader_bonus + self.melee_bonus + self.ranged_bonus + self.cavalry_bonus
     }
+
+    /// Get general
+    pub fn get_general(&self) -> &General{
+        &self.gen
+    }
 }
 
 

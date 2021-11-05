@@ -2,7 +2,7 @@ use crate::treasure::Treasure;
 use crate::player::Player;
 use crate::monster::monster_type;
 use std::borrow::Borrow;
-use crate::equipment::Equipment;
+use crate::equipment::{Equipment, equipment_type};
 use crate::general::general_state;
 use rand::Rng;
 
@@ -19,7 +19,7 @@ impl Battle<'_>{
         let outcome = self.calculate_outcome();
         let casualties = self.calculate_casualties(&outcome);
         self.assign_casualties(&casualties);
-        let treasure_results = self.treasure_results(&outcome);
+        let treasure_results = self.treasure_results();
 
     }
 
@@ -31,6 +31,7 @@ impl Battle<'_>{
         // get player autoresolve bonuses
         total += self.attacker.get_autoresolve_bonus() as f32;
         total -= self.defender.get_autoresolve_bonus() as f32;
+
         // add random bonuses
         total += self.battle_randoms() as f32;
         total -= self.battle_randoms() as f32;
@@ -57,27 +58,44 @@ impl Battle<'_>{
             unit_casualties: 0
         }
     }
+
     // TODO implement assign_casualties()
     fn assign_casualties(&self, casualties : &battle_casualties){
 
     }
+
     // TODO implement battle_output()
     fn battle_output(&self){
 
     }
-    // TODO implement treasure_results()
-    fn treasure_results(&self, outcome: &battle_outcome) -> treasure_results{
-        treasure_results{ attacker: None, defender: None }
+
+    /// Determine treasure results for a battle
+    fn treasure_results(&self) -> treasure_results{
+        treasure_results{ attacker: self.find_treasure(&self.attacker),
+            defender: self.find_treasure(&self.defender),
+        }
     }
 
-    // TODO implement battle_randoms()
+    /// Determine if treasure is found by a given player
+    fn find_treasure(&self, player : &Player) -> Option<&Equipment>{
+        let mut rng = rand::thread_rng();
+        let bonus = self.player.get_general().get_equipment(equipment_type::Follower).get_bonus();
+        if rng.gen_range(1..9) + bonus >= 5{
+            self.treasure.find_equipment()
+        }
+        None
+    }
+
+
+
+    /// Generate random modifiers for battle autoresolving
     fn battle_randoms(&self) -> i32
     {
         let mut rng = rand::thread_rng();
         // sum of 10x random in range 1-10
         let mut sum = 0;
         for _ in 0..10 {
-            sum += (rng.gen::<f32>() * 10.0) as i32;
+            sum += rng.gen_range(1..11);
         }
         sum
     }
