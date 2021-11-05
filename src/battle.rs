@@ -49,7 +49,7 @@ impl battle_type{
     }
 }
 
-
+#[derive(Debug)]
 struct town_stats{
     supplies : i32,
     defenses: town_defenses,

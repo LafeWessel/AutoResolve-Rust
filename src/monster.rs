@@ -1,6 +1,7 @@
 use crate::treasure::Treasure;
 use crate::equipment::equipment_type;
 
+#[derive(Debug)]
 pub enum monster_type{
     Minotaur ,
     Hobgoblin,

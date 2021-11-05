@@ -64,7 +64,7 @@ impl Treasure{
 
     pub fn get_dragon_equipment(&self) -> &Equipment{
         let v = self.items.iter()
-            .filter(|e| *e.get_is_dragon())
+            .filter(|e| e.get_is_dragon())
             .collect::<Vec<&Equipment>>();
         v.choose(&mut rand::thread_rng()).unwrap()
     }
