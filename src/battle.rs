@@ -10,6 +10,11 @@ struct Battle<'a>{
 }
 
 impl Battle{
+    fn calculate(&self) -> battle_outcome{
+        battle_outcome::Draw
+    }
+
+
 
 }
 
@@ -30,9 +35,12 @@ struct town_stats{
 }
 
 impl town_stats{
+    /// Get supplies
     pub fn get_supplies(&self) -> i32{
         self.supplies
     }
+
+    /// Get town defenses
     pub fn get_defenses(&self) -> &town_defenses{
         &self.defenses
     }
@@ -41,9 +49,19 @@ impl town_stats{
 #[derive(Debug,Eq, PartialEq)]
 enum town_defenses{
     None = 1,
-    Wooden_Wall,
-    Wooden_Wall_W_Moat,
-    Stone_Wall,
-    Stone_Wall_W_Moat,
+    WoodenWall,
+    WoodenWallAndMoat,
+    StoneWall,
+    StoneWallAndMoat,
 }
 
+#[derive(Debug,Eq, PartialEq)]
+enum battle_outcome{
+    DecisiveVictory = 1,
+    HeroicVictory,
+    CloseVictory,
+    Draw,
+    CloseDefeat,
+    ValiantDefeat,
+    CrushingDefeat,
+}

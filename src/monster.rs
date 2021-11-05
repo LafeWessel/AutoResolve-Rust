@@ -42,7 +42,7 @@ impl monster_type{
         }
     }
 
-    /// Get list of equipment types as reward for given monster type
+    /// Get list of equipment types as reward for given monster type, return empty for Dragon
     fn rewards(&self) -> Vec<equipment_type>{
         match *self{
             monster_type::Minotaur => vec![equipment_type::Weapon],
