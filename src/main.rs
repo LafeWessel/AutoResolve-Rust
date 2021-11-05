@@ -10,6 +10,7 @@ mod faction;
 mod general;
 mod player;
 mod battle;
+mod monster;
 
 fn main() {
 

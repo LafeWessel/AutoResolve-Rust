@@ -2,7 +2,7 @@ use crate::unit::{Unit, unit_type};
 use crate::general::General;
 use crate::faction::faction;
 
-struct Player{
+pub struct Player{
     units: Vec<Unit>,
     gen: General,
     faction : faction,

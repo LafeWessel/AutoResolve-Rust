@@ -1,17 +1,26 @@
 use crate::treasure::Treasure;
+use crate::player::Player;
+use crate::monster::Monster;
 
-struct Battle{
+struct Battle<'a>{
+    battle_type : battle_type<'a>,
+    attacker : Player,
+    defender : Player,
+    treasure : &'a Treasure,
+}
+
+impl Battle{
 
 }
 
 
 //#[derive(Eq, PartialEq, Debug)]
-enum battle_type{
+enum battle_type<'a>{
     Normal{},
-    Siege{rams: i32, catapults:i32, siege_towers:i32, defenses: town_stats},
+    Siege{rams: i32, catapults: i32, siege_towers: i32, defenses: town_stats},
     Raid{defenses: town_stats},
     Naval{attacker_ships: i32, defender_ships: i32},
-    Monster{}
+    Monster{monster : Monster<'a>}
 }
 
 
@@ -29,6 +38,7 @@ impl town_stats{
     }
 }
 
+#[derive(Debug,Eq, PartialEq)]
 enum town_defenses{
     None = 1,
     Wooden_Wall,
@@ -37,18 +47,3 @@ enum town_defenses{
     Stone_Wall_W_Moat,
 }
 
-struct Monster<'a>{
-    mon_type : monster_type,
-    autoresolve_bonus : i32,
-    coin_reward : i32,
-    treasure : &'a Treasure,
-}
-
-enum monster_type{
-    Minotaur = 1,
-    Hobgoblin,
-    Troll,
-    Giant,
-    Demon,
-    Dragon,
-}
