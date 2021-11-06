@@ -431,4 +431,39 @@ mod town_stats_tests{
 #[cfg(test)]
 mod battle_tests{
 
+    // autoresolve
+    #[test]
+    fn test_autoresolve(){
+
+    }
+    // calculate_outcome
+    #[test]
+    fn test_calculate_outcome(){
+
+    }
+    // calculate_casualties
+    #[test]
+    fn test_calculate_casualties(){
+
+    }
+    // assign_casualties
+    #[test]
+    fn test_assign_casualties(){
+
+    }
+    // treasure_results
+    #[test]
+    fn test_treasure_results(){
+
+    }
+    // find_treasure
+    #[test]
+    fn test_find_treasure(){
+
+    }
+    // battle_randoms
+    #[test]
+    fn test_battle_randoms(){
+
+    }
 }
