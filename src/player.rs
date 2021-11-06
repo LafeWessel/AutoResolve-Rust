@@ -105,9 +105,14 @@ impl Player{
         &self.gen
     }
 
-    /// Get vector of units
+    /// Get mutable vector of units
     pub fn get_units_mut(&mut self) -> &mut Vec<Unit>{
         &mut self.units
+    }
+
+    /// Get vector of units
+    pub fn get_units(& self) -> &Vec<Unit>{
+        &self.units
     }
 }
 

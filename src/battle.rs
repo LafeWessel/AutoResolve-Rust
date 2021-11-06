@@ -12,7 +12,18 @@ struct Battle<'a>{
     treasure : &'a Treasure,
 }
 
+
 impl Battle<'_>{
+
+    pub fn new(attacker : Player, defender: Player, battle_type : BattleType, treasure : &'static Treasure) -> Self{
+        Battle{
+            battle_type,
+            attacker,
+            defender,
+            treasure
+        }
+    }
+
     /// Resolve Battle and return results
     fn autoresolve(&mut self) -> BattleResults{
         let outcome = self.calculate_outcome();
@@ -115,8 +126,9 @@ impl Battle<'_>{
         let mut rng = rand::thread_rng();
 
         // If casualties > player's soldier count, assign all units to max casualties
-        if casualties.casualties > player.get_soldier_count(){
+        if casualties.casualties >= player.get_soldier_count() || casualties.unit_casualties >= player.get_units().len() as i32{
             player.get_units_mut().iter_mut().map(|u| u.assign_casualties(u.get_size())).for_each(drop);
+            return;
         }
 
         let mut assigned: i32 = 0; // assigned casualties
@@ -136,7 +148,7 @@ impl Battle<'_>{
                 top_assign = if assigned_unit >= casualties.unit_casualties {u.get_size()-1} else {u.get_size()};
 
                 // assign random amount of casualties between 0 and top_assign
-                curr_cas = rng.gen_range(0..top_assign);
+                curr_cas = rng.gen_range(0..=top_assign);
 
                 // prevent more than maximum casualties being assigned
                 if assigned + curr_cas > casualties.casualties{
@@ -352,6 +364,19 @@ mod battle_outcome_tests{
         assert_eq!(BattleOutcome::ValiantDefeat, BattleOutcome::determine_outcome(-10.0));
         assert_eq!(BattleOutcome::CloseDefeat, BattleOutcome::determine_outcome(-2.1));
     }
+
+
+    #[test]
+    fn test_outcome_to_i32(){
+        assert_eq!(1,BattleOutcome::DecisiveVictory as i32);
+        assert_eq!(2,BattleOutcome::HeroicVictory as i32);
+        assert_eq!(3,BattleOutcome::CloseVictory as i32);
+        assert_eq!(4,BattleOutcome::Draw as i32);
+        assert_eq!(5,BattleOutcome::CloseDefeat as i32);
+        assert_eq!(6,BattleOutcome::ValiantDefeat as i32);
+        assert_eq!(7,BattleOutcome::CrushingDefeat as i32);
+
+    }
 }
 
 #[cfg(test)]
@@ -430,40 +455,77 @@ mod town_stats_tests{
 // TODO write unit tests for Battle
 #[cfg(test)]
 mod battle_tests{
+    use crate::player::Player;
+    use crate::unit::Unit;
+    use crate::faction::Faction;
+    use crate::general::{General, GeneralState};
+    use crate::battle::{Casualties, Battle};
 
-    // autoresolve
-    #[test]
-    fn test_autoresolve(){
-
-    }
-    // calculate_outcome
-    #[test]
-    fn test_calculate_outcome(){
-
-    }
-    // calculate_casualties
-    #[test]
-    fn test_calculate_casualties(){
-
-    }
     // assign_casualties
     #[test]
-    fn test_assign_casualties(){
+    fn test_assign_casualties_equal_casualties() {
+        let u = Unit::new(1, String::new(), 1, 1, 5);
+        let g = General::default();
+        let mut p = Player::new(vec![u], g);
+        let mut c = Casualties {
+            state: GeneralState::Unharmed,
+            upgrades: 0,
+            casualties: 5,
+            unit_casualties: 0
+        };
 
+        Battle::assign_casualties(&mut c, &mut p);
+        assert_eq!(0, p.get_units_mut().iter().nth(0).unwrap().get_size());
+        assert_eq!(0, p.get_soldier_count());
     }
-    // treasure_results
+
     #[test]
-    fn test_treasure_results(){
-
+    fn test_assign_casualties_one_less_casualty(){
+        let u = Unit::new(1, String::new(), 1, 1, 5);
+        let g = General::default();
+        let mut p = Player::new(vec![u], g);
+        let mut c = Casualties {
+            state: GeneralState::Unharmed,
+            upgrades: 0,
+            casualties: 4,
+            unit_casualties: 0
+        };
+        Battle::assign_casualties(&mut c, &mut p);
+        assert_eq!(1, p.get_units_mut().iter().nth(0).unwrap().get_size());
+        assert_eq!(1,p.get_soldier_count());
     }
-    // find_treasure
+
     #[test]
-    fn test_find_treasure(){
-
+    fn test_assign_casualties_equal_unit_casualties(){
+        let u = Unit::new(1, String::new(), 1, 0, 5);
+        let g = General::default();
+        let mut p = Player::new(vec![u], g);
+        let mut c = Casualties {
+            state: GeneralState::Unharmed,
+            upgrades: 0,
+            casualties: 0,
+            unit_casualties: 1
+        };
+        Battle::assign_casualties(&mut c, &mut p);
+        assert_eq!(0, p.get_units_mut().iter().nth(0).unwrap().get_size());
+        assert_eq!(0,p.get_soldier_count());
     }
-    // battle_randoms
+
     #[test]
-    fn test_battle_randoms(){
+    fn test_assign_casualties_one_less_unit_casualty(){
+        let u = Unit::new(1, String::new(), 1, 0, 5);
+        let g = General::default();
+        let mut p = Player::new(vec![u.clone(),u.clone()], g);
+        let mut c = Casualties {
+            state: GeneralState::Unharmed,
+            upgrades: 0,
+            casualties: 9,
+            unit_casualties: 1
+        };
+        Battle::assign_casualties(&mut c, &mut p);
 
+        assert!(0 == p.get_units_mut().iter().nth(0).unwrap().get_size() || 0 == p.get_units_mut().iter().nth(1).unwrap().get_size());
+        assert_eq!(1,p.get_soldier_count());
     }
+
 }
