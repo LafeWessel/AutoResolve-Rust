@@ -6,7 +6,7 @@ use crate::general::GeneralState;
 use rand::Rng;
 use crate::roster::Roster;
 use std::path::Path;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::fs;
 
@@ -560,23 +560,21 @@ impl BattleData{
         }
 
         let file_path = Path::new(&self.output_location);
-        // If output file doesn't exist, create and write first line
+        // If output file doesn't exist, create by copying template
         if !Path::exists(file_path){
-            let mut f = File::create(file_path).unwrap();
-            let k : String = fs::read_to_string("./ResourceFiles/data_capture_template.txt").unwrap();
-            f.write(k.as_ref());
+            println!("Creating output file at {} for battle data",self.output_location);
+            fs::copy("./ResourceFiles/data_capture_template.txt", &self.output_location).unwrap();
         }
 
         // Write lines to file
-        let mut f = File::create(file_path).unwrap();
-        // Write each data entry
-        for line in self.data.iter(){
+        let mut f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
+        // Write each data entry, write the first before to ensure proper comma alignment
+        write!(f,"{}",self.data[0]);
+        for line in self.data.iter().skip(1){
             // Write each cell, separating with commas
-            for c in line.split(","){
-                f.write(format!("{},", c).as_ref());
-            }
-            f.write("\n".as_ref());
+            write!(f,",{}",line);
         }
+        write!(f,"\n");
         true
     }
 
@@ -763,7 +761,6 @@ mod battle_tests{
 
 }
 
-// TODO write unit tests for BattleData
 #[cfg(test)]
 mod battle_data_tests{
     use crate::battle::BattleData;
@@ -773,7 +770,7 @@ mod battle_data_tests{
     #[test]
     fn test_write_to_file(){
         let mut b = BattleData{
-            data: vec![],
+            data: vec![String::new()],
             unit_names: vec![],
             output_location: "./DataCapture/test.csv".to_string(),
             got_initial: false,
@@ -799,6 +796,17 @@ mod battle_data_tests{
         let t : String = fs::read_to_string("./ResourceFiles/data_capture_template.txt").unwrap().trim().parse().unwrap();
         let f : String = fs::read_to_string(&b.output_location).unwrap().trim().parse().unwrap();
         assert_eq!(t,f);
+
+        b.data = vec![String::from("0"),String::from("1"),String::from("2")];
+        fs::remove_file(Path::new(&b.output_location));
+        assert_eq!(true,b.save_to_file());
+        let f : String = fs::read_to_string(&b.output_location).unwrap();
+        assert_eq!(f.lines().nth(1).unwrap().trim().parse::<String>().unwrap(), "0,1,2");
+
+        assert_eq!(true,b.save_to_file());
+        let f : String = fs::read_to_string(&b.output_location).unwrap();
+        assert_eq!(f.lines().nth(1).unwrap().trim().parse::<String>().unwrap(), "0,1,2");
+        assert_eq!(f.lines().nth(2).unwrap().trim().parse::<String>().unwrap(), "0,1,2");
 
         // clean up
         fs::remove_file(Path::new(&b.output_location));
