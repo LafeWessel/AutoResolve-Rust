@@ -87,6 +87,11 @@ impl Player{
     pub fn get_general(&self) -> &General{
         &self.gen
     }
+
+    /// Get vector of units
+    pub fn get_units_mut(&mut self) -> &mut Vec<Unit>{
+        &mut self.units
+    }
 }
 
 

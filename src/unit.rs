@@ -69,6 +69,16 @@ impl Unit{
     pub fn get_size(&self) -> i32{
         self.unit_size
     }
+
+    /// Assign casualties to unit, return if operation successful
+    pub fn assign_casualties(&mut self, cas : i32) -> bool{
+        if cas > self.unit_size{
+            return false;
+        }
+        self.unit_size -= cas;
+        true
+    }
+
 }
 
 #[derive(Debug,Eq,PartialEq,Copy, Clone)]

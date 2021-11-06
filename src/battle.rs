@@ -14,10 +14,11 @@ struct Battle<'a>{
 
 impl Battle<'_>{
     // TODO implement autoresolve()
-    fn autoresolve(&self){
+    fn autoresolve(&mut self){
         let outcome = self.calculate_outcome();
-        let casualties = self.calculate_casualties(&outcome);
-        self.assign_casualties(&casualties);
+        let mut casualties = self.calculate_casualties(&outcome);
+        Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
+        Self::assign_casualties(&mut casualties.defender,&mut self.defender);
         let treasure_results = self.treasure_results();
 
     }
@@ -44,7 +45,6 @@ impl Battle<'_>{
 
         // determine outcome
         BattleOutcome::determine_outcome(total)
-
     }
 
     /// Calculate casualties for attacker and defender based on battle outcome
@@ -89,29 +89,77 @@ impl Battle<'_>{
         }
 
         BattleCasualties {
-            attacker: Some(Casualties{
+            attacker: Casualties{
                 state: att_gen,
                 upgrades: att_up,
                 casualties: att_cas,
                 unit_casualties: att_unit_cas,
-            }),
-            defender: Some(Casualties{
+            },
+            defender: Casualties{
                 state: def_gen,
                 upgrades: def_up,
                 casualties: def_cas,
                 unit_casualties: def_unit_cas,
-            }),
+            },
         }
     }
 
-    // TODO implement assign_casualties()
-    fn assign_casualties(&self, casualties : &BattleCasualties){
+    /// Assign casualties to a player
+    fn assign_casualties(casualties : &mut Casualties, player : &mut Player){
+        let mut rng = rand::thread_rng();
 
+        // If casualties > player's soldier count, assign all units to max casualties
+        if casualties.casualties > player.get_soldier_count(){
+            player.get_units_mut().iter_mut().map(|u| u.assign_casualties(u.get_size())).for_each(drop);
+        }
+
+        let mut assigned: i32 = 0; // assigned casualties
+        let mut assigned_unit: i32 = 0; // assigned unit casualties
+        let mut top_assign : i32 = 0; // top amount of casualties that can be assigned to a unit
+        let mut curr_cas:i32 = 0; // current amount of casualties to assign
+
+        // loop through units until all casualties have been assigned
+        while assigned < casualties.casualties{
+            for u in player.get_units_mut(){
+                // skip if unit has no size left
+                if u.get_size() <= 0{
+                    continue;
+                }
+
+                // if all unit casualties assigned, ensure that top_assign is one less than the current unit's size
+                top_assign = if assigned_unit >= casualties.unit_casualties {u.get_size()-1} else {u.get_size()};
+
+                // assign random amount of casualties between 0 and top_assign
+                curr_cas = rng.gen_range(0..top_assign);
+
+                // prevent more than maximum casualties being assigned
+                if assigned + curr_cas > casualties.casualties{
+                    curr_cas = casualties.casualties - assigned;
+                }
+                // assign casualties, ensure it works properly
+                assigned += curr_cas;
+                assert!(u.assign_casualties(curr_cas));
+
+                // assign unit casualty if unit size = 0
+                if u.get_size() == 0{
+                    assigned_unit += 1;
+                }
+            }
+        }
+
+        // recalculate number of unit casualties
+        let mut tot_u_cas = 0;
+        for u in player.get_units_mut().iter(){
+            if u.get_size() == 0{
+                tot_u_cas += 1;
+            }
+        }
+        casualties.unit_casualties = tot_u_cas;
     }
 
     // TODO implement battle_output()
-    fn battle_output(&self){
-
+    fn battle_output(&self) -> String{
+        String::new()
     }
 
     /// Determine treasure results for a battle
@@ -146,8 +194,8 @@ impl Battle<'_>{
 }
 
 struct BattleCasualties{
-    attacker : Option<Casualties>,
-    defender : Option<Casualties>,
+    attacker : Casualties,
+    defender : Casualties,
 }
 
 struct Casualties {
@@ -228,7 +276,6 @@ enum BattleOutcome {
 }
 
 impl BattleOutcome {
-    // TODO refactor to match statement
     /// Determine which outcome based on f32 result
     fn determine_outcome(result : f32) -> BattleOutcome {
         //All results are in relation to the attacker.
