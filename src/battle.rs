@@ -1,6 +1,6 @@
 use crate::treasure::Treasure;
 use crate::player::Player;
-use crate::monster::monster_type;
+use crate::monster::MonsterType;
 use crate::equipment::{Equipment, EquipmentType};
 use crate::general::GeneralState;
 use rand::Rng;
@@ -13,14 +13,20 @@ struct Battle<'a>{
 }
 
 impl Battle<'_>{
-    // TODO implement autoresolve()
-    fn autoresolve(&mut self){
+    /// Resolve Battle and return results
+    fn autoresolve(&mut self) -> BattleResults{
         let outcome = self.calculate_outcome();
         let mut casualties = self.calculate_casualties(&outcome);
         Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
         Self::assign_casualties(&mut casualties.defender,&mut self.defender);
         let treasure_results = self.treasure_results();
 
+        BattleResults{
+            battle_type : self.battle_type,
+            outcome : outcome,
+            casualties : casualties,
+            treasure: treasure_results,
+        }
     }
 
     /// Calculate the outcome of the battle based on each Player's statistics
@@ -54,7 +60,7 @@ impl Battle<'_>{
         // Attacker Casualties
         let att_tot = self.attacker.get_soldier_count();
         let mut att_cas = 0;
-        for i in 0..att_tot/10{
+        for _ in 0..att_tot/10{
             att_cas += rng.gen_range(0..((*outcome as i32) + 1));
         }
         let att_unit_cas = if (att_cas/7)-1 < 0 {0} else {(att_cas/7)-1};
@@ -62,7 +68,7 @@ impl Battle<'_>{
         // Defender Casualties
         let def_tot = self.defender.get_soldier_count();
         let mut def_cas = 0;
-        for i in 0..att_tot/10{
+        for _ in 0..def_tot/10{
             def_cas += rng.gen_range(0..((*outcome as i32) + 1));
         }
         let def_unit_cas = if (def_cas/7)-1 < 0 {0} else {(def_cas/7)-1};
@@ -157,11 +163,6 @@ impl Battle<'_>{
         casualties.unit_casualties = tot_u_cas;
     }
 
-    // TODO implement battle_output()
-    fn battle_output(&self) -> String{
-        String::new()
-    }
-
     /// Determine treasure results for a battle
     fn treasure_results(&self) -> TreasureResults {
         TreasureResults {
@@ -193,6 +194,36 @@ impl Battle<'_>{
     }
 }
 
+struct BattleResults<'a>{
+    battle_type : BattleType,
+    outcome: BattleOutcome,
+    casualties : BattleCasualties,
+    treasure : TreasureResults<'a>,
+}
+
+impl BattleResults<'_>{
+    /// Convert BattleResults to a printable string
+    pub fn battle_output(&self) -> String{
+        format!("Battle Results:\n\
+        Type: {:?}\nOutcome (for Attacker): {:?}\n\
+        Attacker Casualties:\n\tSoldiers: {}\n\tUnits: {}\n\tGeneral State: {:?}\n\tUpgrades: {}\n\
+        Defender Casualties:\n\tSoldiers: {}\n\tUnits: {}\n\tGeneral State: {:?}\n\tUpgrades: {}\n\
+        Attacker Reward: {:?}\nDefender Reward: {:?}",
+                            self.battle_type, self.outcome,
+                            self.casualties.attacker.casualties,
+                            self.casualties.attacker.unit_casualties,
+                            self.casualties.attacker.state,
+                            self.casualties.attacker.upgrades,
+                            self.casualties.defender.casualties,
+                            self.casualties.defender.unit_casualties,
+                            self.casualties.defender.state,
+                            self.casualties.defender.upgrades,
+                            self.treasure.defender,self.treasure.attacker)
+
+
+    }
+}
+
 struct BattleCasualties{
     attacker : Casualties,
     defender : Casualties,
@@ -210,29 +241,29 @@ struct TreasureResults<'a>{
     defender : Option<&'a Equipment>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 enum BattleType {
-    Normal{},
+    Normal,
     Siege{rams: i32, catapults: i32, siege_towers: i32, defenses: TownStats },
     Raid{defenses: TownStats },
     Naval{attacker_ships: i32, defender_ships: i32},
-    Monster{monster : monster_type}
+    Monster{monster : MonsterType }
 }
 
 impl BattleType {
     /// Calculate the autoresolve modifier for the type of battle
     fn get_calculation(&self) -> i32{
         match &self{
-            BattleType::Normal { .. } => 0,
+            BattleType::Normal => 0,
             BattleType::Siege { rams,catapults,siege_towers,defenses } => (rams * 2) + (catapults * 3) + (siege_towers * 4) - defenses.get_autoresolve_bonus(),
             BattleType::Raid { defenses } => -1 * defenses.get_autoresolve_bonus(),
             BattleType::Naval { attacker_ships,defender_ships} => 3*(attacker_ships - defender_ships),
-            BattleType::Monster { monster} => monster.autoresolve_value(),
+            BattleType::Monster { monster} => -1 * monster.autoresolve_value(),
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct TownStats {
     supplies : i32,
     defenses: TownDefenses,
@@ -305,7 +336,99 @@ impl BattleOutcome {
     }
 }
 
-// TODO write unit tests for BattleOutcome
-// TODO write unit tests for town defenses
-// TODO write unit tests for BattleType
+#[cfg(test)]
+mod battle_outcome_tests{
+    use crate::battle::BattleOutcome;
+
+    #[test]
+    fn test_outcome(){
+        assert_eq!(BattleOutcome::DecisiveVictory, BattleOutcome::determine_outcome(20.0));
+        assert_eq!(BattleOutcome::HeroicVictory, BattleOutcome::determine_outcome(10.0));
+        assert_eq!(BattleOutcome::CloseVictory, BattleOutcome::determine_outcome(2.1));
+        assert_eq!(BattleOutcome::Draw, BattleOutcome::determine_outcome(2.0));
+        assert_eq!(BattleOutcome::Draw, BattleOutcome::determine_outcome(0.0));
+        assert_eq!(BattleOutcome::Draw, BattleOutcome::determine_outcome(-2.0));
+        assert_eq!(BattleOutcome::CrushingDefeat, BattleOutcome::determine_outcome(-20.0));
+        assert_eq!(BattleOutcome::ValiantDefeat, BattleOutcome::determine_outcome(-10.0));
+        assert_eq!(BattleOutcome::CloseDefeat, BattleOutcome::determine_outcome(-2.1));
+    }
+}
+
+#[cfg(test)]
+mod battle_type_tests{
+    use crate::battle::{BattleType, TownStats, TownDefenses, Battle};
+    use crate::monster::MonsterType;
+
+    #[test]
+    fn test_battle_type_calculation(){
+        // Normal
+        assert_eq!(0,BattleType::Normal.get_calculation());
+
+        // Siege
+        let ts = TownStats{
+            supplies : 0,
+            defenses : TownDefenses::None,
+        };
+        assert_eq!(9,BattleType::Siege {rams:1,siege_towers:1,catapults:1,defenses:ts}.get_calculation());
+
+        // Raid
+        let ts = TownStats{
+            supplies : 0,
+            defenses : TownDefenses::WoodenWall,
+        };
+        assert_eq!(-10,BattleType::Raid {defenses:ts}.get_calculation());
+
+        // Naval
+        assert_eq!(0,BattleType::Naval{attacker_ships:1,defender_ships:1}.get_calculation());
+
+        // Monster
+        assert_eq!(-20,BattleType::Monster { monster: MonsterType::Minotaur}.get_calculation())
+    }
+
+}
+
+#[cfg(test)]
+mod town_stats_tests{
+    use crate::battle::TownStats;
+    use super::TownDefenses;
+
+    #[test]
+    fn test_town_stat_bonus(){
+        let mut t = TownStats{
+            supplies: 0,
+            defenses: TownDefenses::None
+        };
+        assert_eq!(0,t.get_autoresolve_bonus());
+
+
+        let mut t = TownStats{
+            supplies: 0,
+            defenses: TownDefenses::WoodenWall
+        };
+        assert_eq!(10,t.get_autoresolve_bonus());
+
+        let mut t = TownStats{
+            supplies: 0,
+            defenses: TownDefenses::WoodenWallAndMoat
+        };
+        assert_eq!(20,t.get_autoresolve_bonus());
+
+        let mut t = TownStats{
+            supplies: 0,
+            defenses: TownDefenses::StoneWall
+        };
+        assert_eq!(30,t.get_autoresolve_bonus());
+
+        let mut t = TownStats{
+            supplies: 0,
+            defenses: TownDefenses::StoneWallAndMoat
+        };
+        assert_eq!(40,t.get_autoresolve_bonus());
+    }
+}
+
 // TODO write unit tests for Battle
+#[cfg(test)]
+mod battle_tests{
+
+}
