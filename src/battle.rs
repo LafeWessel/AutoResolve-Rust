@@ -5,6 +5,10 @@ use crate::equipment::{Equipment, EquipmentType};
 use crate::general::GeneralState;
 use rand::Rng;
 use crate::roster::Roster;
+use std::path::Path;
+use std::fs::File;
+use std::io::Write;
+use std::fs;
 
 struct Battle<'a>{
     battle_type : BattleType,
@@ -555,18 +559,28 @@ impl BattleData{
             return false;
         }
 
+        let file_path = Path::new(&self.output_location);
+        // If output file doesn't exist, create and write first line
+        if !Path::exists(file_path){
+            let mut f = File::create(file_path).unwrap();
+            let k : String = fs::read_to_string("./ResourceFiles/data_capture_template.txt").unwrap();
+            f.write(k.as_ref());
+        }
 
-
-        false
+        // Write lines to file
+        let mut f = File::create(file_path).unwrap();
+        // Write each data entry
+        for line in self.data.iter(){
+            // Write each cell, separating with commas
+            for c in line.split(","){
+                f.write(format!("{},", c).as_ref());
+            }
+            f.write("\n".as_ref());
+        }
+        true
     }
 
 }
-
-
-
-
-
-
 
 #[cfg(test)]
 mod battle_outcome_tests{
@@ -672,7 +686,6 @@ mod town_stats_tests{
     }
 }
 
-// TODO write unit tests for Battle
 #[cfg(test)]
 mod battle_tests{
     use crate::player::Player;
@@ -748,4 +761,46 @@ mod battle_tests{
         assert_eq!(1,p.get_soldier_count());
     }
 
+}
+
+// TODO write unit tests for BattleData
+#[cfg(test)]
+mod battle_data_tests{
+    use crate::battle::BattleData;
+    use std::path::Path;
+    use std::fs;
+
+    #[test]
+    fn test_write_to_file(){
+        let mut b = BattleData{
+            data: vec![],
+            unit_names: vec![],
+            output_location: "./DataCapture/test.csv".to_string(),
+            got_initial: false,
+            got_calculations: false,
+            got_results: false
+        };
+        // remove output file if it somehow exists
+        fs::remove_file(Path::new(&b.output_location));
+
+        assert_eq!(false, b.save_to_file());
+        b.got_results = true;
+
+        assert_eq!(false, b.save_to_file());
+        b.got_calculations = true;
+
+        assert_eq!(false, b.save_to_file());
+        b.got_initial = true;
+
+        assert_eq!(false,Path::exists(Path::new("./DataCapture/test.csv")));
+        assert_eq!(true, b.save_to_file());
+        assert_eq!(true,Path::exists(Path::new("./DataCapture/test.csv")));
+
+        let t : String = fs::read_to_string("./ResourceFiles/data_capture_template.txt").unwrap().trim().parse().unwrap();
+        let f : String = fs::read_to_string(&b.output_location).unwrap().trim().parse().unwrap();
+        assert_eq!(t,f);
+
+        // clean up
+        fs::remove_file(Path::new(&b.output_location));
+    }
 }

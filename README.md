@@ -33,7 +33,7 @@ Data can be saved from test runs to `.csv` format.
 
 ### Format
 
-Columns in Read out from 4 regular battle types:
+Columns in output from 4 regular battle types (Normal, Siege, Raid, Naval):
 Scroll down for read out of locations for Monster battle type
 
 0. Battle Type - string
@@ -109,7 +109,6 @@ Attacker:
 68. End General State - string
 69. Treasure Received - bool(int)
 70. Faction - string
-
 71. Ships - int
 72. Rams - int
 73. Siege Towers - int
