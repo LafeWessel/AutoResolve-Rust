@@ -89,7 +89,7 @@ impl General{
 
 }
 
-
+#[derive(Debug)]
 pub enum GeneralState {
     Unharmed,
     Wounded,
