@@ -45,6 +45,7 @@ Scroll down for read out of locations for Monster battle type
 6. Supplies - int
 
 Attacker:
+
 7. General Rank - int
 8. General Total Autoresolve Bonus - int
 9. General Armor Bonus - int
@@ -115,6 +116,7 @@ Attacker:
 74. Catapults - int
 
 Defender:
+
 75. General Rank - int
 76. General Total Autoresolve Bonus - int
 77. General Armor Bonus - int
