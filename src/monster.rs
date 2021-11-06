@@ -1,7 +1,7 @@
 use crate::equipment::EquipmentType;
 
-#[derive(Debug)]
-pub enum monster_type{
+#[derive(Debug, Copy, Clone)]
+pub enum MonsterType {
     Minotaur ,
     Hobgoblin,
     Troll,
@@ -10,40 +10,40 @@ pub enum monster_type{
     Dragon,
 }
 
-impl monster_type{
+impl MonsterType {
     /// Get coin reward for given monster type
     fn coin_reward(&self) -> i32{
         match *self{
-            monster_type::Minotaur => 200,
-            monster_type::Hobgoblin => 300,
-            monster_type::Troll => 400,
-            monster_type::Giant => 500,
-            monster_type::Demon => 700,
-            monster_type::Dragon => 1400,
+            MonsterType::Minotaur => 200,
+            MonsterType::Hobgoblin => 300,
+            MonsterType::Troll => 400,
+            MonsterType::Giant => 500,
+            MonsterType::Demon => 700,
+            MonsterType::Dragon => 1400,
         }
     }
 
     /// Get autoresolve value for a given monster type
     pub fn autoresolve_value(&self) -> i32{
         match *self{
-            monster_type::Minotaur => 20,
-            monster_type::Hobgoblin => 30,
-            monster_type::Troll => 40,
-            monster_type::Giant => 50,
-            monster_type::Demon => 60,
-            monster_type::Dragon => 70,
+            MonsterType::Minotaur => 20,
+            MonsterType::Hobgoblin => 30,
+            MonsterType::Troll => 40,
+            MonsterType::Giant => 50,
+            MonsterType::Demon => 60,
+            MonsterType::Dragon => 70,
         }
     }
 
     /// Get list of equipment types as reward for given monster type, return empty for Dragon
     fn rewards(&self) -> Vec<EquipmentType>{
         match *self{
-            monster_type::Minotaur => vec![EquipmentType::Weapon],
-            monster_type::Hobgoblin => vec![EquipmentType::Weapon, EquipmentType::Armor],
-            monster_type::Troll => vec![EquipmentType::Weapon, EquipmentType::Trinket],
-            monster_type::Giant => vec![EquipmentType::Weapon, EquipmentType::Trinket, EquipmentType::Armor],
-            monster_type::Demon => vec![EquipmentType::Armor, EquipmentType::Banner],
-            monster_type::Dragon => vec![],
+            MonsterType::Minotaur => vec![EquipmentType::Weapon],
+            MonsterType::Hobgoblin => vec![EquipmentType::Weapon, EquipmentType::Armor],
+            MonsterType::Troll => vec![EquipmentType::Weapon, EquipmentType::Trinket],
+            MonsterType::Giant => vec![EquipmentType::Weapon, EquipmentType::Trinket, EquipmentType::Armor],
+            MonsterType::Demon => vec![EquipmentType::Armor, EquipmentType::Banner],
+            MonsterType::Dragon => vec![],
         }
     }
 }
