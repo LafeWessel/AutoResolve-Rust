@@ -1,6 +1,6 @@
 use crate::faction::Faction;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Unit{
     faction: Faction,
     name: String,
@@ -13,18 +13,6 @@ impl Default for Unit{
     fn default() -> Self {
         Unit::new(1,String::new(),1,0,0)
     }    
-}
-
-impl Clone for Unit{
-    fn clone(&self) -> Self {
-        Unit{
-            faction: self.faction.clone(),
-            name: self.name.clone(),
-            unit_type: self.unit_type.clone(),
-            autoresolve_bonus: self.autoresolve_bonus,
-            unit_size: self.unit_size,
-        }
-    }
 }
 
 
