@@ -104,6 +104,6 @@ mod tests{
     fn get_dragon_test(){
         let t = Treasure::new();
 
-        assert!(t.get_dragon_equipment().get_name().contains("Dragon"));
+        assert!(t.get_dragon_equipment().get_is_dragon());
     }
 }
