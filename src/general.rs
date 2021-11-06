@@ -73,6 +73,11 @@ impl General{
         &self.state
     }
 
+    /// Get rank
+    pub fn get_rank(&self) -> i32{
+        self.rank
+    }
+
     /// Update bonus based on equipment and rank
     fn update_bonus(&mut self){
         self.bonus = self.armor.get_bonus() +

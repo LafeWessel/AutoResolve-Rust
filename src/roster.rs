@@ -55,6 +55,13 @@ impl Roster{
         self.units.iter().filter(|u| *u.get_faction() == faction).collect()
     }
 
+    /// Return names of every unit
+    pub fn get_all_unit_names(&self) -> Vec<String>{
+        let mut v : Vec<String> = vec![];
+        self.units.iter().map(|u| v.push(String::from(u.get_name()))).for_each(drop);
+        v
+    }
+
 }
 
 

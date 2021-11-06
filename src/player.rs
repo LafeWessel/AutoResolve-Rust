@@ -100,6 +100,16 @@ impl Player{
         self.leader_bonus + self.melee_bonus + self.ranged_bonus + self.cavalry_bonus
     }
 
+    /// Get reinforcements
+    pub fn get_reinforcements(&self) -> i32{
+        self.reinforcements
+    }
+
+    /// Get Faction
+    pub fn get_faction(&self) -> &Faction{
+        &self.faction
+    }
+
     /// Get general
     pub fn get_general(&self) -> &General{
         &self.gen
@@ -113,6 +123,16 @@ impl Player{
     /// Get vector of units
     pub fn get_units(& self) -> &Vec<Unit>{
         &self.units
+    }
+
+    /// Get advanced combat deck
+    pub fn has_advanced_combat_deck(&self) -> bool{
+        self.adv_combat
+    }
+
+    /// Get unit count by name
+    pub fn get_unit_count_by_name(&self, name : &str) -> i32{
+        self.units.iter().filter(|u| u.get_name() == name).collect::<Vec<&Unit>>().len() as i32
     }
 }
 
@@ -174,5 +194,19 @@ mod tests{
         let p = Player::new_filled(vec![],g, Faction::Rebel,0,true);
 
         assert_eq!(5, p.leader_bonus);
+    }
+
+    #[test]
+    fn test_get_unit_count_by_name(){
+        let g = General::default();
+        let u1 = Unit::new(1,String::from("test1"),2,10,0);
+        let u2 = Unit::new(1,String::from("test1"),2,10,0);
+        let u3 = Unit::new(1,String::from("test2"),2,10,0);
+        let p = Player::new(vec![u1,u2,u3], g);
+
+        assert_eq!(2,p.get_unit_count_by_name("test1"));
+        assert_eq!(1,p.get_unit_count_by_name("test2"));
+        assert_eq!(0,p.get_unit_count_by_name("test3"));
+
     }
 }
