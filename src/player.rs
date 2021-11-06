@@ -29,12 +29,29 @@ impl Player{
             units: units,
             gen : general,
             faction: Faction::Rebel,
+            reinforcements: 0,
+            adv_combat: false,
             melee_bonus: 0,
             cavalry_bonus: 0,
             ranged_bonus: 0,
             leader_bonus: 0,
-            reinforcements: 0,
-            adv_combat: false
+        };
+        p.calculate_bonuses();
+        p
+    }
+
+    pub fn new_filled(units: Vec<Unit>, gen: General, faction : Faction,
+                      reinforcements : i32, adv_combat: bool, ) -> Player{
+        let mut p = Player{
+            units,
+            gen,
+            reinforcements,
+            adv_combat,
+            faction,
+            melee_bonus: 0,
+            cavalry_bonus: 0,
+            ranged_bonus: 0,
+            leader_bonus: 0
         };
         p.calculate_bonuses();
         p
@@ -136,7 +153,21 @@ mod tests{
 
     }
 
-    // TODO add tests for reinforcements
+    #[test]
+    fn reinforcement_test(){
+        let g = General::default();
+        let p = Player::new_filled(vec![],g, Faction::Rebel,1,false);
 
-    // TODO add tests for advanced combat deck
+        assert_eq!(4,p.melee_bonus);
+        assert_eq!(4,p.cavalry_bonus);
+        assert_eq!(4,p.ranged_bonus);
+    }
+
+    #[test]
+    fn advanced_combat_deck_test(){
+        let g = General::default();
+        let p = Player::new_filled(vec![],g, Faction::Rebel,0,true);
+
+        assert_eq!(5, p.leader_bonus);
+    }
 }
