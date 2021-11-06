@@ -4,23 +4,26 @@ use crate::monster::MonsterType;
 use crate::equipment::{Equipment, EquipmentType};
 use crate::general::GeneralState;
 use rand::Rng;
+use crate::roster::Roster;
 
 struct Battle<'a>{
     battle_type : BattleType,
     attacker : Player,
     defender : Player,
     treasure : &'a Treasure,
+    data : BattleData,
 }
 
-
+// TODO handle Monster battle
 impl Battle<'_>{
 
-    pub fn new(attacker : Player, defender: Player, battle_type : BattleType, treasure : &'static Treasure) -> Self{
+    pub fn new(attacker : Player, defender: Player, battle_type : BattleType, treasure : &'static Treasure, roster : &Roster) -> Self{
         Battle{
             battle_type,
             attacker,
             defender,
-            treasure
+            treasure,
+            data : BattleData::new(roster),
         }
     }
 
@@ -41,7 +44,7 @@ impl Battle<'_>{
     }
 
     /// Calculate the outcome of the battle based on each Player's statistics
-    fn calculate_outcome(&self) -> BattleOutcome {
+    fn calculate_outcome(&mut self) -> BattleOutcome {
         let mut total : f32 = 0.0;
 
         // get player autoresolve bonuses
@@ -49,8 +52,11 @@ impl Battle<'_>{
         total -= self.defender.get_autoresolve_bonus() as f32;
 
         // add random bonuses
-        total += self.battle_randoms() as f32;
-        total -= self.battle_randoms() as f32;
+        let att_rand = self.battle_randoms() as f32;
+        let def_rand = self.battle_randoms() as f32;
+        total += att_rand;
+        total -= def_rand;
+
 
         // calculate RPS bonuses
         total += 1.5 * (self.attacker.get_cavalry_bonus() - self.defender.get_ranged_bonus()) as f32;
@@ -61,6 +67,7 @@ impl Battle<'_>{
         total += self.battle_type.get_calculation() as f32;
 
         // determine outcome
+        self.data.collect_battle_calculations(att_rand,def_rand,total);
         BattleOutcome::determine_outcome(total)
     }
 
@@ -206,7 +213,7 @@ impl Battle<'_>{
     }
 }
 
-struct BattleResults<'a>{
+pub struct BattleResults<'a>{
     battle_type : BattleType,
     outcome: BattleOutcome,
     casualties : BattleCasualties,
@@ -254,7 +261,7 @@ struct TreasureResults<'a>{
 }
 
 #[derive(Debug, Copy, Clone)]
-enum BattleType {
+pub enum BattleType {
     Normal,
     Siege{rams: i32, catapults: i32, siege_towers: i32, defenses: TownStats },
     Raid{defenses: TownStats },
@@ -271,6 +278,30 @@ impl BattleType {
             BattleType::Raid { defenses } => -1 * defenses.get_autoresolve_bonus(),
             BattleType::Naval { attacker_ships,defender_ships} => 3*(attacker_ships - defender_ships),
             BattleType::Monster { monster} => -1 * monster.autoresolve_value(),
+        }
+    }
+
+
+    /// Get file name for where data is saved
+    fn get_data_path(&self) -> String{
+        match *self{
+            BattleType::Normal => String::from("NormalData.csv"),
+            BattleType::Siege { .. } => String::from("SiegeData.csv"),
+            BattleType::Raid { .. } => String::from("RaidData.csv"),
+            BattleType::Naval { .. } => String::from("NavalData.csv"),
+            BattleType::Monster { .. } => String::from("MonsterData.csv"),
+        }
+
+    }
+
+    /// Get name of enum
+    fn get_name(&self) -> String{
+        match *self{
+            BattleType::Normal => String::from("Normal"),
+            BattleType::Siege { .. } => String::from("Siege"),
+            BattleType::Raid { .. } => String::from("Raid"),
+            BattleType::Naval { .. } => String::from("Naval"),
+            BattleType::Monster { .. } => String::from("Monster"),
         }
     }
 }
@@ -347,6 +378,195 @@ impl BattleOutcome {
 
     }
 }
+
+struct BattleData{
+    data : Vec<String>,
+    unit_names : Vec<String>,
+    output_location : String,
+    got_initial : bool,
+    got_calculations : bool,
+    got_results : bool,
+}
+
+impl BattleData{
+    /// Create new BattleData
+    fn new(roster : &Roster) -> Self{
+        BattleData{
+            data : vec![String::new();141],
+            unit_names : roster.get_all_unit_names(),
+            output_location : String::from("./DataCapture/"),
+            got_initial : false,
+            got_calculations : false,
+            got_results : false,
+        }
+    }
+
+    /// Save initial battle data before running autoresolve
+    fn collect_initial_battle_data(&mut self, battle : &Battle){
+        // set output location
+        self.output_location.push_str(&*battle.battle_type.get_data_path());
+
+        // Battle type
+        self.data[0] = battle.battle_type.get_name();
+        // Supplies
+        self.data[6] = match battle.battle_type {
+            BattleType::Siege { defenses , ..} => defenses.supplies.to_string(),
+            BattleType::Raid { defenses,.. } => defenses.supplies.to_string(),
+            _ => String::from("0"),
+        };
+
+        // Attacker fields
+        self.data[7] = battle.attacker.get_general().get_rank().to_string();
+        self.data[8] = battle.attacker.get_general().get_bonus().to_string();
+        self.data[9] = battle.attacker.get_general().get_equipment(EquipmentType::Armor).get_bonus().to_string();
+        self.data[10] = battle.attacker.get_general().get_equipment(EquipmentType::Weapon).get_bonus().to_string();
+        self.data[11] = battle.attacker.get_general().get_equipment(EquipmentType::Follower).get_bonus().to_string();
+        self.data[12] = battle.attacker.get_general().get_equipment(EquipmentType::Banner).get_bonus().to_string();
+        self.data[13] = battle.attacker.get_general().get_equipment(EquipmentType::Trinket).get_bonus().to_string();
+        self.data[14] = battle.attacker.has_advanced_combat_deck().to_string();
+        self.data[15] = (battle.attacker.get_melee_bonus() + battle.attacker.get_cavalry_bonus() + battle.attacker.get_ranged_bonus()).to_string();
+        self.data[16] = battle.attacker.get_melee_bonus().to_string();
+        self.data[17] = battle.attacker.get_ranged_bonus().to_string();
+        self.data[18] = battle.attacker.get_cavalry_bonus().to_string();
+        self.data[19] = battle.attacker.get_soldier_count().to_string();
+
+        // Attacker units
+        // This works because the units names are in the same order as the output file
+        for (i,j) in self.unit_names.iter().enumerate(){
+            self.data[25+i] = battle.attacker.get_unit_count_by_name(j).to_string();
+        }
+
+        self.data[63] = battle.attacker.get_units().len().to_string();
+        self.data[64] = battle.attacker.get_reinforcements().to_string();
+
+        // Defender fields
+        self.data[75] = battle.defender.get_general().get_rank().to_string();
+        self.data[76] = battle.defender.get_general().get_bonus().to_string();
+        self.data[77] = battle.defender.get_general().get_equipment(EquipmentType::Armor).get_bonus().to_string();
+        self.data[78] = battle.defender.get_general().get_equipment(EquipmentType::Weapon).get_bonus().to_string();
+        self.data[79] = battle.defender.get_general().get_equipment(EquipmentType::Follower).get_bonus().to_string();
+        self.data[80] = battle.defender.get_general().get_equipment(EquipmentType::Banner).get_bonus().to_string();
+        self.data[81] = battle.defender.get_general().get_equipment(EquipmentType::Trinket).get_bonus().to_string();
+        self.data[82] = battle.defender.has_advanced_combat_deck().to_string();
+        self.data[83] = (battle.defender.get_melee_bonus() + battle.defender.get_cavalry_bonus() + battle.defender.get_ranged_bonus()).to_string();
+        self.data[84] = battle.defender.get_melee_bonus().to_string();
+        self.data[85] = battle.defender.get_ranged_bonus().to_string();
+        self.data[86] = battle.defender.get_cavalry_bonus().to_string();
+        self.data[87] = battle.defender.get_soldier_count().to_string();
+
+        // Defender units
+        // This works because the units names are in the same order as the output file
+        for (i,j) in self.unit_names.iter().enumerate(){
+            self.data[25+i] = battle.defender.get_unit_count_by_name(j).to_string();
+        }
+
+        self.data[131] = battle.defender.get_units().len().to_string();
+        self.data[132] = battle.defender.get_reinforcements().to_string();
+
+
+        self.got_initial = true;
+    }
+
+    /// Save battle data after running autoresolve
+    fn collect_battle_results(&mut self, results : &BattleResults, battle : &Battle){
+        // Outcome
+        self.data[4] = format!{"{:?}",results.outcome};
+        // Attacker won (bool)
+        self.data[5] = if results.outcome as i32 > 3 {false.to_string()} else {true.to_string()};
+
+        // Attacker fields
+        self.data[20] = (battle.attacker.get_melee_bonus() + battle.attacker.get_cavalry_bonus() + battle.attacker.get_ranged_bonus()).to_string();
+        self.data[21] = battle.attacker.get_melee_bonus().to_string();
+        self.data[22] = battle.attacker.get_ranged_bonus().to_string();
+        self.data[23] = battle.attacker.get_cavalry_bonus().to_string();
+        self.data[24] = battle.attacker.get_soldier_count().to_string();
+        self.data[65] = results.casualties.attacker.upgrades.to_string();
+        self.data[66] = results.casualties.attacker.unit_casualties.to_string();
+        self.data[67] = results.casualties.attacker.casualties.to_string();
+        self.data[68] = format!{"{:?}",results.casualties.attacker.state};
+        self.data[69] = match results.treasure.attacker {
+            None => false.to_string(),
+            Some(_) => true.to_string(),
+        };
+        self.data[70] = format!("{:?}", battle.attacker.get_faction());
+        self.data[71] = match battle.battle_type{
+            BattleType::Naval {attacker_ships,..} => attacker_ships.to_string(),
+            _ => String::from("0"),
+        };
+        self.data[72] = match battle.battle_type{
+            BattleType::Siege {rams,..} => rams.to_string(),
+            _ => String::from("0"),
+        };
+        self.data[73] = match battle.battle_type{
+            BattleType::Siege {siege_towers,..} => siege_towers.to_string(),
+            _ => String::from("0"),
+        };
+        self.data[74] = match battle.battle_type{
+            BattleType::Siege {catapults,..} => catapults.to_string(),
+            _ => String::from("0"),
+        };
+
+        // Defender fields
+        self.data[88] = (battle.defender.get_melee_bonus() + battle.defender.get_cavalry_bonus() + battle.defender.get_ranged_bonus()).to_string();
+        self.data[89] = battle.defender.get_melee_bonus().to_string();
+        self.data[90] = battle.defender.get_ranged_bonus().to_string();
+        self.data[91] = battle.defender.get_cavalry_bonus().to_string();
+        self.data[92] = battle.defender.get_soldier_count().to_string();
+        self.data[133] = results.casualties.defender.upgrades.to_string();
+        self.data[134] = results.casualties.defender.unit_casualties.to_string();
+        self.data[135] = results.casualties.defender.casualties.to_string();
+        self.data[136] = format!{"{:?}",results.casualties.defender.state};
+        self.data[137] = match results.treasure.defender {
+            None => false.to_string(),
+            Some(_) => true.to_string(),
+        };
+        self.data[138] = format!("{:?}", battle.defender.get_faction());
+        self.data[139] = match battle.battle_type{
+            BattleType::Naval {defender_ships,..} => defender_ships.to_string(),
+            _ => String::from("0"),
+        };
+        self.data[140] = match battle.battle_type{
+            BattleType::Siege {defenses,..} => format!("{:?}",defenses.defenses),
+            BattleType::Raid {defenses,..} => format!("{:?}",defenses.defenses),
+            _ => String::from("0"),
+        };
+
+        self.got_results = true;
+    }
+
+
+    /// Save calculations made while calculating a battle's outcome
+    fn collect_battle_calculations(&mut self, attacker : f32, defender : f32, total: f32){
+        // Attacker random total
+        self.data[1] = attacker.to_string();
+        // Defender random total
+        self.data[2] = defender.to_string();
+        // Ending total
+        self.data[3] = total.to_string();
+        self.got_calculations = true;
+    }
+
+    /// Save results to disk, return if operation was successful
+    fn save_to_file(&self) -> bool{
+        if !self.got_calculations || !self.got_results || !self.got_initial{
+            println!("Unable to write because not all data yet set\n\t\
+            Initial:{}\n\tRandoms:{}\n\tResults:{}"
+                     ,self.got_initial,self.got_calculations,self.got_results);
+            return false;
+        }
+
+
+
+        false
+    }
+
+}
+
+
+
+
+
+
 
 #[cfg(test)]
 mod battle_outcome_tests{
