@@ -18,7 +18,6 @@ struct Battle<'a>{
     data : BattleData,
 }
 
-// TODO handle Monster battle
 impl Battle<'_>{
 
     pub fn new(attacker : Player, defender: Player, battle_type : BattleType, treasure : &'static Treasure, roster : &Roster) -> Self{
@@ -33,18 +32,54 @@ impl Battle<'_>{
 
     /// Resolve Battle and return results
     fn autoresolve(&mut self) -> BattleResults{
-        let outcome = self.calculate_outcome();
-        let mut casualties = self.calculate_casualties(&outcome);
-        Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
-        Self::assign_casualties(&mut casualties.defender,&mut self.defender);
-        let treasure_results = self.treasure_results();
-
-        BattleResults{
-            battle_type : self.battle_type,
-            outcome : outcome,
-            casualties : casualties,
-            treasure: treasure_results,
+        // determine which calculations to use for battle depending on the type
+        match self.battle_type{
+            BattleType::Monster { .. } => {
+                let outcome = self.monster_outcome();
+                let mut casualties = self.calculate_casualties(&outcome);
+                Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
+                let treasure_results = self.treasure_results();
+                BattleResults{
+                    battle_type : self.battle_type,
+                    outcome,
+                    casualties,
+                    treasure: treasure_results,
+                }
+            },
+            _ => {
+                let outcome = self.calculate_outcome();
+                let mut casualties = self.calculate_casualties(&outcome);
+                Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
+                Self::assign_casualties(&mut casualties.defender,&mut self.defender);
+                let treasure_results = self.treasure_results();
+                BattleResults{
+                    battle_type : self.battle_type,
+                    outcome,
+                    casualties,
+                    treasure: treasure_results,
+                }
+            },
         }
+    }
+
+    /// Calculate the outcome for a Monster Battle type
+    fn monster_outcome(&mut self) -> BattleOutcome{
+        let mut total : f32 = 0.0;
+        // add attacker bonus
+        total += self.attacker.get_autoresolve_bonus() as f32;
+
+        // add random bonuses
+        let att_rand = self.battle_randoms() as f32;
+        let def_rand = self.battle_randoms() as f32;
+        total += att_rand;
+        total -= def_rand;
+
+        // add BattleType bonuses
+        total += self.battle_type.get_calculation() as f32;
+
+        // determine outcome
+        self.data.collect_battle_calculations(att_rand,def_rand,total);
+        BattleOutcome::determine_outcome(total)
     }
 
     /// Calculate the outcome of the battle based on each Player's statistics
