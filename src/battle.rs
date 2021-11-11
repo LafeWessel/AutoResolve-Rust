@@ -6,7 +6,7 @@ use crate::general::GeneralState;
 use rand::Rng;
 use crate::roster::Roster;
 use std::path::Path;
-use std::fs::{File, OpenOptions};
+use std::fs::{OpenOptions};
 use std::io::Write;
 use std::fs;
 
@@ -299,7 +299,7 @@ struct TreasureResults<'a>{
     defender : Option<&'a Equipment>,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum BattleType {
     Normal,
     Siege{rams: i32, catapults: i32, siege_towers: i32, defenses: TownStats },
@@ -345,7 +345,7 @@ impl BattleType {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct TownStats {
     supplies : i32,
     defenses: TownDefenses,
@@ -378,7 +378,7 @@ impl TownStats {
 }
 
 #[derive(Debug,Eq, PartialEq, Copy, Clone)]
-enum TownDefenses {
+pub enum TownDefenses {
     None = 1,
     WoodenWall,
     WoodenWallAndMoat,
@@ -657,7 +657,7 @@ mod battle_outcome_tests{
 
 #[cfg(test)]
 mod battle_type_tests{
-    use crate::battle::{BattleType, TownStats, TownDefenses, Battle};
+    use crate::battle::{BattleType, TownStats, TownDefenses};
     use crate::monster::MonsterType;
 
     #[test]
@@ -695,32 +695,32 @@ mod town_stats_tests{
 
     #[test]
     fn test_town_stat_bonus(){
-        let mut t = TownStats{
+        let t = TownStats{
             supplies: 0,
             defenses: TownDefenses::None
         };
         assert_eq!(0,t.get_autoresolve_bonus());
 
 
-        let mut t = TownStats{
+        let t = TownStats{
             supplies: 0,
             defenses: TownDefenses::WoodenWall
         };
         assert_eq!(10,t.get_autoresolve_bonus());
 
-        let mut t = TownStats{
+        let t = TownStats{
             supplies: 0,
             defenses: TownDefenses::WoodenWallAndMoat
         };
         assert_eq!(20,t.get_autoresolve_bonus());
 
-        let mut t = TownStats{
+        let t = TownStats{
             supplies: 0,
             defenses: TownDefenses::StoneWall
         };
         assert_eq!(30,t.get_autoresolve_bonus());
 
-        let mut t = TownStats{
+        let t = TownStats{
             supplies: 0,
             defenses: TownDefenses::StoneWallAndMoat
         };
@@ -732,7 +732,6 @@ mod town_stats_tests{
 mod battle_tests{
     use crate::player::Player;
     use crate::unit::Unit;
-    use crate::faction::Faction;
     use crate::general::{General, GeneralState};
     use crate::battle::{Casualties, Battle};
 

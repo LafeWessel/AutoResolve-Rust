@@ -12,7 +12,6 @@ mod battle;
 mod monster;
 
 use clap::{App, Arg, ArgMatches};
-use std::fs::OpenOptions;
 use crate::battle::{BattleType, TownStats};
 use crate::monster::MonsterType;
 
@@ -61,12 +60,12 @@ fn initialize_clap_app() -> App<'static, 'static>{
     let roster_file = Arg::with_name("roster_file")
         .short("u").long("unit")
         .help("Override input file for reading unit/roster data")
-        .value_name("FILE").default_value("");
+        .value_name("FILE");
     // Arg for specifying a different treasure file to use
     let treasure_file = Arg::with_name("treasure_file")
         .short("t").long("treasure")
         .help("Override input file for reading treasure/equipment data")
-        .value_name("FILE").default_value("");
+        .value_name("FILE");
 
     // Create and return new App
     App::new("Autoresolve")
@@ -83,28 +82,24 @@ fn initialize_clap_app() -> App<'static, 'static>{
         .arg(treasure_file)
 }
 
-/// Parse arguments from provided CLI arguments and return a new Config
+/// Parse arguments from provided CLI command and return a new Config
 fn parse_app_arguments<'a>(matches : &'a ArgMatches) -> Config<'a>{
-
-    // use default values for initializing battle type, they can be altered later
-    let battle_type = match matches.value_of("battle_type").unwrap() {
-        "2" => BattleType::Siege { rams: 0, catapults: 0, siege_towers: 0, defenses: TownStats::default(), },
-        "3" => BattleType::Raid { defenses: TownStats::default() },
-        "4" => BattleType::Naval {attacker_ships:0,defender_ships:0},
-        "5" => BattleType::Monster { monster: MonsterType::Minotaur },
-        "1" | _ => BattleType::Normal,
-    };
-
-
     Config{
         roster: Roster::new(Option::None),
         treasure: Treasure::new(Option::None),
         use_rand: matches.is_present("random"),
         save_data: matches.is_present("save"),
         output_file_override: matches.value_of("output_file"),
-        count_runs: matches.value_of("count_runs").unwrap().parse().unwrap(),
+        run_count: matches.value_of("run_count").unwrap().parse().unwrap(),
         log: matches.is_present("log"),
-        battle_type: 0,
+        // use default values for initializing battle type, they can be altered later
+        battle_type: match matches.value_of("battle_type").unwrap() {
+            "2" => BattleType::Siege { rams: 0, catapults: 0, siege_towers: 0, defenses: TownStats::default(), },
+            "3" => BattleType::Raid { defenses: TownStats::default() },
+            "4" => BattleType::Naval {attacker_ships:0,defender_ships:0},
+            "5" => BattleType::Monster { monster: MonsterType::Minotaur },
+            "1" | _ => BattleType::Normal,
+        },
         roster_file_override: matches.value_of("roster_file"),
         treasure_file_override: matches.value_of("treasure_file"),
     }
@@ -122,9 +117,9 @@ struct Config<'a> {
     use_rand : bool,
     save_data : bool,
     output_file_override : Option<&'a str>,
-    count_runs : i32,
+    run_count: i32,
     log : bool,
-    battle_type : i32,
+    battle_type : BattleType,
     roster_file_override : Option<&'a str>,
     treasure_file_override : Option<&'a str>,
 
@@ -135,3 +130,43 @@ struct Config<'a> {
 // TODO implement CLI using clap crate
 
 // TODO implement logging throughout
+
+#[cfg(test)]
+mod cli_tests{
+    use crate::{initialize_clap_app, parse_app_arguments};
+    use crate::monster::MonsterType;
+    use crate::battle::BattleType;
+
+    #[test]
+    fn test_default_cli_options(){
+        let app = initialize_clap_app();
+        let args = vec![""];
+        let matches = app.get_matches_from(args);
+        let cfg = parse_app_arguments(&matches);
+        assert!(!cfg.log);
+        assert!(!cfg.save_data);
+        assert!(!cfg.use_rand);
+        assert_eq!(cfg.run_count, 1);
+        assert_eq!(cfg.battle_type,BattleType::Normal);
+        assert_eq!(None,cfg.output_file_override);
+        assert_eq!(None,cfg.roster_file_override);
+        assert_eq!(None,cfg.treasure_file_override);
+    }
+
+    #[test]
+    fn test_non_default_cli_options(){
+        let app = initialize_clap_app();
+        let args = vec!["","-r","-s","-f","test1","-c","2","-l","-b","5","-u","test2","-t","test3"];
+        let matches = app.get_matches_from(args);
+        let cfg = parse_app_arguments(&matches);
+        assert!(cfg.log);
+        assert!(cfg.save_data);
+        assert!(cfg.use_rand);
+        assert_eq!(cfg.run_count, 2);
+        assert_eq!(cfg.battle_type,BattleType::Monster {monster:MonsterType::Minotaur});
+        assert_eq!(Some("test1"),cfg.output_file_override);
+        assert_eq!(Some("test2"),cfg.roster_file_override);
+        assert_eq!(Some("test3"),cfg.treasure_file_override);
+    }
+}
+
