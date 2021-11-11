@@ -346,9 +346,18 @@ impl BattleType {
 }
 
 #[derive(Debug, Copy, Clone)]
-struct TownStats {
+pub struct TownStats {
     supplies : i32,
     defenses: TownDefenses,
+}
+
+impl Default for TownStats{
+    fn default() -> Self {
+        TownStats{
+            supplies: 0,
+            defenses:TownDefenses::None,
+        }
+    }
 }
 
 impl TownStats {
