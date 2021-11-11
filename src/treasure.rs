@@ -32,7 +32,6 @@ impl Treasure{
     }
 
     /// Parse string into new Equipment object
-    /// TODO: Update to use CSV package
     fn read_equipment(&self, line: &str) -> Equipment{
         let values : Vec<&str> = line.split(",").collect();
         Equipment::new(

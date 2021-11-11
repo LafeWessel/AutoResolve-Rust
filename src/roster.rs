@@ -29,7 +29,6 @@ impl Roster{
     }
 
     /// Parse string into Unit object
-    /// TODO: update to use CSV package
     pub fn read_unit(&self, line : &str) -> Unit{
         let values : Vec<&str> = line.split(",").collect();
         // println!("{:?}", values);
