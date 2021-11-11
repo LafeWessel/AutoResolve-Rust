@@ -10,9 +10,13 @@ pub struct Treasure{
 }
 
 impl Treasure{
-    pub fn new() -> Self{
+    /// Create new Treasure, defaults to ./ResourceFiles/equipment.csv if None provided
+    pub fn new(file_path : Option<&str>) -> Self{
         let mut t = Treasure{
-            file_path: String::from("./ResourceFiles/equipment.csv"),
+            file_path: match file_path {
+                None => String::from("./ResourceFiles/equipment.csv"),
+                Some(s) => String::from(s),
+            },
             items : vec![],
         };
         t.init();
@@ -90,7 +94,7 @@ mod tests{
 
     #[test]
     fn get_item_test(){
-        let t = Treasure::new();
+        let t = Treasure::new(Option::None);
 
         assert_eq!(EquipmentType::Armor, *t.get_item(EquipmentType::Armor).equip_type());
         assert_eq!(EquipmentType::Weapon, *t.get_item(EquipmentType::Weapon).equip_type());
@@ -101,7 +105,7 @@ mod tests{
 
     #[test]
     fn get_dragon_test(){
-        let t = Treasure::new();
+        let t = Treasure::new(Option::None);
 
         assert!(t.get_dragon_equipment().get_is_dragon());
     }

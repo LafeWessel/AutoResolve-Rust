@@ -108,7 +108,7 @@ mod tests{
 
     #[test]
     fn test_set_equipment(){
-        let r = Treasure::new();
+        let r = Treasure::new(Option::None);
         let mut g = General::default();
 
         g.set_equipment(r.get_item(EquipmentType::Armor).clone());

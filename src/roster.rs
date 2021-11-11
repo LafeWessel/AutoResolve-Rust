@@ -8,9 +8,13 @@ pub struct Roster{
     units : Vec<Unit>,
 }
 impl Roster{
-    pub fn new() -> Self {
+    /// Create new Roster, defaults to ./ResourceFiles/units.csv if None provided
+    pub fn new(file_path : Option<&str>) -> Self {
         let mut r = Roster{
-            file_path: String::from("./ResourceFiles/units.csv"),
+            file_path: match file_path{
+                None => String::from("./ResourceFiles/units.csv"),
+                Some(s) => String::from(s),
+            },
             units : vec![],
         };
         r.init();
@@ -70,7 +74,7 @@ mod tests{
 
     #[test]
     fn test_get_faction_roster(){
-        let r = Roster::new();
+        let r = Roster::new(Option::None);
 
         for i in r.get_faction_roster(Faction::Menoriad).iter(){
             assert_eq!(*i.get_faction(), Faction::Menoriad);
