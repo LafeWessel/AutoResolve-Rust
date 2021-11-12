@@ -127,10 +127,6 @@ struct Config<'a> {
 
 // TODO implement TestBattle: randomized testing of battles
 
-// TODO implement CLI using clap crate
-
-// TODO implement logging throughout
-
 #[cfg(test)]
 mod cli_tests{
     use crate::{initialize_clap_app, parse_app_arguments};
