@@ -15,8 +15,6 @@ pub struct Config {
     run_count: i32,
     log : bool,
     battle_type : BattleType,
-    roster_file_override : Option<String>,
-    treasure_file_override : Option<String>,
     battle_file : Option<String>,
 
 }
@@ -33,14 +31,22 @@ impl Config{
 
     /// Run application with provided Config
     pub fn run_app(&self){
-        println!("Running application");
+
+        // run run_count battles
+        for i in 1..=self.run_count{
+            // run battles
+            println!("Run {}:",self.run_count);
+        }
+
+
+
     }
 
     /// Parse arguments from provided CLI command and return a new Config
     fn parse_app_arguments(matches : &ArgMatches) -> Config{
         Config{
-            roster: Roster::new(Option::None),
-            treasure: Treasure::new(Option::None),
+            roster: Roster::new(matches.value_of("roster_file")),
+            treasure: Treasure::new(matches.value_of("treasure_file")),
             use_rand: matches.is_present("random"),
             save_data: matches.is_present("save"),
             output_file_override: matches.value_of("output_file").map(|s| s.to_string()),
@@ -54,8 +60,6 @@ impl Config{
                 "5" => BattleType::Monster { monster: MonsterType::Minotaur },
                 "1" | _ => BattleType::Normal,
             },
-            roster_file_override: matches.value_of("roster_file").map(|s| s.to_string()),
-            treasure_file_override: matches.value_of("treasure_file").map(|s| s.to_string()),
             battle_file: matches.value_of("battle_file").map(|s| s.to_string()),
         }
     }
@@ -124,8 +128,6 @@ impl Config{
     }
 
 }
-
-// TODO implement TestBattle: randomized testing of battles
 
 #[cfg(test)]
 mod cli_tests{
