@@ -6,22 +6,22 @@ use crate::roster::Roster;
 use crate::treasure::Treasure;
 
 
-pub struct Config<'a> {
+pub struct Config {
     roster : Roster,
     treasure : Treasure,
     use_rand : bool,
     save_data : bool,
-    output_file_override : Option<&'a str>,
+    output_file_override : Option<String>,
     run_count: i32,
     log : bool,
     battle_type : BattleType,
-    roster_file_override : Option<&'a str>,
-    treasure_file_override : Option<&'a str>,
-    battle_file : Option<&'a str>,
+    roster_file_override : Option<String>,
+    treasure_file_override : Option<String>,
+    battle_file : Option<String>,
 
 }
 
-impl Config<'_>{
+impl Config{
     /// Create new Config based on CLI args
     pub fn initialize() -> Config{
         let app  = Self::initialize_clap_app();
@@ -32,18 +32,18 @@ impl Config<'_>{
     }
 
     /// Run application with provided Config
-    pub(crate) fn run_app(&self){
+    pub fn run_app(&self){
         println!("Running application");
     }
 
     /// Parse arguments from provided CLI command and return a new Config
-    pub(crate) fn parse_app_arguments<'a>(matches : &'a ArgMatches) -> Config<'a>{
+    fn parse_app_arguments(matches : &ArgMatches) -> Config{
         Config{
             roster: Roster::new(Option::None),
             treasure: Treasure::new(Option::None),
             use_rand: matches.is_present("random"),
             save_data: matches.is_present("save"),
-            output_file_override: matches.value_of("output_file"),
+            output_file_override: matches.value_of("output_file").map(|s| s.to_string()),
             run_count: matches.value_of("run_count").unwrap().parse().unwrap(),
             log: matches.is_present("log"),
             // use default values for initializing battle type, they can be altered later
@@ -54,14 +54,14 @@ impl Config<'_>{
                 "5" => BattleType::Monster { monster: MonsterType::Minotaur },
                 "1" | _ => BattleType::Normal,
             },
-            roster_file_override: matches.value_of("roster_file"),
-            treasure_file_override: matches.value_of("treasure_file"),
-            battle_file: matches.value_of("battle_file")
+            roster_file_override: matches.value_of("roster_file").map(|s| s.to_string()),
+            treasure_file_override: matches.value_of("treasure_file").map(|s| s.to_string()),
+            battle_file: matches.value_of("battle_file").map(|s| s.to_string()),
         }
     }
 
     /// Initialize clap App with arguments
-    pub(crate) fn initialize_clap_app() -> App<'static, 'static>{
+    fn initialize_clap_app() -> App<'static, 'static>{
 
         // Arg for running randomly generated battles
         let rand = Arg::with_name("random")
@@ -103,7 +103,7 @@ impl Config<'_>{
             .value_name("FILE");
         // Arg for specifying situation file to run
         let battle_file = Arg::with_name("battle_file")
-            .short("b").long("battle")
+            .short("j").long("json")
             .help("Battle JSON file to read and run.")
             .value_name("FILE");
 
@@ -153,7 +153,7 @@ mod cli_tests{
     #[test]
     fn test_non_default_cli_options(){
         let app = Config::initialize_clap_app();
-        let args = vec!["","-r","-s","-f","test1","-c","2","-l","-b","5","-u","test2","-t","test3","-b","test4"];
+        let args = vec!["","-r","-s","-f","test1","-c","2","-l","-b","5","-u","test2","-t","test3","-j","test4"];
         let matches = app.get_matches_from(args);
         let cfg = Config::parse_app_arguments(&matches);
         assert!(cfg.log);
@@ -161,10 +161,10 @@ mod cli_tests{
         assert!(cfg.use_rand);
         assert_eq!(cfg.run_count, 2);
         assert_eq!(cfg.battle_type,BattleType::Monster {monster:MonsterType::Minotaur});
-        assert_eq!(Some("test1"),cfg.output_file_override);
-        assert_eq!(Some("test2"),cfg.roster_file_override);
-        assert_eq!(Some("test3"),cfg.treasure_file_override);
-        assert_eq!(Some("test$"),cfg.battle_file);
+        assert_eq!(Some("test1".to_string()),cfg.output_file_override);
+        assert_eq!(Some("test2".to_string()),cfg.roster_file_override);
+        assert_eq!(Some("test3".to_string()),cfg.treasure_file_override);
+        assert_eq!(Some("test4".to_string()),cfg.battle_file);
 
     }
 }

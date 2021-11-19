@@ -21,9 +21,7 @@ use crate::config::Config;
 
 fn main() {
 
-    let app  = Config::initialize_clap_app();
-    let matches = app.get_matches();
-    let cfg = Config::parse_app_arguments(&matches);
+    let cfg = Config::initialize();
 
     cfg.run_app();
 
