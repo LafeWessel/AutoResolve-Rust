@@ -1,9 +1,10 @@
 
 use clap::{App, Arg, ArgMatches};
-use crate::battle::{BattleType, TownStats};
+use crate::battle::{BattleType, TownStats, Battle};
 use crate::monster::MonsterType;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
+use crate::player::Player;
 
 
 pub struct Config {
@@ -13,7 +14,6 @@ pub struct Config {
     save_data : bool,
     output_file_override : Option<String>,
     run_count: i32,
-    log : bool,
     battle_type : BattleType,
     battle_file : Option<String>,
 
@@ -30,12 +30,23 @@ impl Config{
     }
 
     /// Run application with provided Config
-    pub fn run_app(&self){
+    pub fn run_app(self){
 
         // run run_count battles
-        for i in 1..=self.run_count{
+        for i in 1..=self.run_count {
             // run battles
-            println!("Run {}:",self.run_count);
+            println!("Run {}:", self.run_count);
+
+            let attacker = Player::default();
+            let defender = Player::default();
+            {
+                let b = Battle::new(attacker, defender, self.battle_type, &self.treasure, &self.roster, &self.output_file_override);
+            }
+            // save Battle data to file
+            if self.save_data{
+                // b.save_data();
+            }
+
         }
 
 
@@ -51,7 +62,6 @@ impl Config{
             save_data: matches.is_present("save"),
             output_file_override: matches.value_of("output_file").map(|s| s.to_string()),
             run_count: matches.value_of("run_count").unwrap().parse().unwrap(),
-            log: matches.is_present("log"),
             // use default values for initializing battle type, they can be altered later
             battle_type: match matches.value_of("battle_type").unwrap() {
                 "2" => BattleType::Siege { rams: 0, catapults: 0, siege_towers: 0, defenses: TownStats::default(), },
@@ -86,10 +96,6 @@ impl Config{
             .short("c").long("count")
             .help("Number of battle runs to perform")
             .value_name("COUNT").default_value("1");
-        // Arg for specifying how much logging to output
-        let logging = Arg::with_name("log")
-            .short("l").long("log")
-            .help("Log to console");
         // Arg for specifying which type of battle to run
         let battle_type = Arg::with_name("battle_type")
             .short("b").long("battle")
@@ -120,7 +126,6 @@ impl Config{
             .arg(save)
             .arg(output_file)
             .arg(count)
-            .arg(logging)
             .arg(battle_type)
             .arg(roster_file)
             .arg(treasure_file)
@@ -141,31 +146,25 @@ mod cli_tests{
         let args = vec![""];
         let matches = app.get_matches_from(args);
         let cfg = Config::parse_app_arguments(&matches);
-        assert!(!cfg.log);
         assert!(!cfg.save_data);
         assert!(!cfg.use_rand);
         assert_eq!(cfg.run_count, 1);
         assert_eq!(cfg.battle_type,BattleType::Normal);
         assert_eq!(None,cfg.output_file_override);
-        assert_eq!(None,cfg.roster_file_override);
-        assert_eq!(None,cfg.treasure_file_override);
         assert_eq!(None,cfg.battle_file);
     }
 
     #[test]
     fn test_non_default_cli_options(){
         let app = Config::initialize_clap_app();
-        let args = vec!["","-r","-s","-f","test1","-c","2","-l","-b","5","-u","test2","-t","test3","-j","test4"];
+        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","-u","./ResourceFiles/units.csv","-t","./ResourceFiles/equipment.csv","-j","test4"];
         let matches = app.get_matches_from(args);
         let cfg = Config::parse_app_arguments(&matches);
-        assert!(cfg.log);
         assert!(cfg.save_data);
         assert!(cfg.use_rand);
         assert_eq!(cfg.run_count, 2);
         assert_eq!(cfg.battle_type,BattleType::Monster {monster:MonsterType::Minotaur});
         assert_eq!(Some("test1".to_string()),cfg.output_file_override);
-        assert_eq!(Some("test2".to_string()),cfg.roster_file_override);
-        assert_eq!(Some("test3".to_string()),cfg.treasure_file_override);
         assert_eq!(Some("test4".to_string()),cfg.battle_file);
 
     }

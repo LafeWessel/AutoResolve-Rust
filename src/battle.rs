@@ -10,7 +10,7 @@ use std::fs::{OpenOptions};
 use std::io::Write;
 use std::fs;
 
-struct Battle<'a>{
+pub struct Battle<'a>{
     battle_type : BattleType,
     attacker : Player,
     defender : Player,
@@ -20,13 +20,13 @@ struct Battle<'a>{
 
 impl Battle<'_>{
 
-    pub fn new(attacker : Player, defender: Player, battle_type : BattleType, treasure : &'static Treasure, roster : &Roster) -> Self{
+    pub fn new(attacker : Player, defender: Player, battle_type : BattleType, treasure : &'static Treasure, roster : &Roster, output_file : &Option<String>) -> Self{
         Battle{
             battle_type,
             attacker,
             defender,
             treasure,
-            data : BattleData::new(roster),
+            data : BattleData::new(roster, output_file),
         }
     }
 
@@ -250,6 +250,13 @@ impl Battle<'_>{
         }
         sum
     }
+
+    /// Write Battle data to file
+    pub fn save_data(&self){
+        self.data.save_to_file();
+    }
+
+
 }
 
 pub struct BattleResults<'a>{
@@ -437,12 +444,18 @@ struct BattleData{
 }
 
 impl BattleData{
-    /// Create new BattleData
-    fn new(roster : &Roster) -> Self{
+    /// Create new BattleData. If output_file is None, uses default for each kind of BattleType.
+    fn new(roster : &Roster, output_file: &Option<String>) -> Self{
+
+        let output = match output_file {
+            None => String::from("./DataCapture/"),
+            Some(s) => s.clone(),
+        };
+
         BattleData{
             data : vec![String::new();141],
             unit_names : roster.get_all_unit_names(),
-            output_location : String::from("./DataCapture/"),
+            output_location : output,
             got_initial : false,
             got_calculations : false,
             got_results : false,

@@ -18,10 +18,7 @@ use crate::monster::MonsterType;
 use crate::config::Config;
 
 // TODO implement CLI argument functionality
-    // TODO implement log
     // TODO implement rand
-    // TODO implement save
-    // TODO implement save file override
     // TODO implement load battle from JSON
     // TODO implement battle type
 // TODO implement TestBattle: randomized testing of battles
