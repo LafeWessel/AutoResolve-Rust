@@ -26,6 +26,7 @@ Order of Variables in `units.csv` file:
 3. Type: Melee(1), Cavalry(2) or Ranged(3) (int)
 4. Autoresolve Bonus (int)
 5. Unit size(int)
+6. Unit id(unsigned int)
 
 ## Data Capture
 
