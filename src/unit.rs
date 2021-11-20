@@ -7,17 +7,18 @@ pub struct Unit{
     unit_type: UnitType,
     autoresolve_bonus : i32,
     unit_size: i32,
+    id : u32,
 }
 
 impl Default for Unit{
     fn default() -> Self {
-        Unit::new(1,String::new(),1,0,0)
+        Unit::new(1,String::new(),1,0,0, 0)
     }    
 }
 
 
 impl Unit{
-    pub fn new(faction_int : u32, name: String, unit_type_int:u32, bonus : i32, size: i32) -> Self{
+    pub fn new(faction_int : u32, name: String, unit_type_int:u32, bonus : i32, size: i32, id: u32) -> Self{
         Unit{
             faction :  match faction_int{
                 1 => Faction::Rebel,
@@ -35,6 +36,7 @@ impl Unit{
             },
             autoresolve_bonus: bonus,
             unit_size: size,
+            id,
         }
     }
 

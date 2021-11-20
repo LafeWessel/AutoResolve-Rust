@@ -749,7 +749,7 @@ mod battle_tests{
     // assign_casualties
     #[test]
     fn test_assign_casualties_equal_casualties() {
-        let u = Unit::new(1, String::new(), 1, 1, 5);
+        let u = Unit::new(1, String::new(), 1, 1, 5,0);
         let g = General::default();
         let mut p = Player::new(vec![u], g);
         let mut c = Casualties {
@@ -766,7 +766,7 @@ mod battle_tests{
 
     #[test]
     fn test_assign_casualties_one_less_casualty(){
-        let u = Unit::new(1, String::new(), 1, 1, 5);
+        let u = Unit::new(1, String::new(), 1, 1, 5,0);
         let g = General::default();
         let mut p = Player::new(vec![u], g);
         let mut c = Casualties {
@@ -782,7 +782,7 @@ mod battle_tests{
 
     #[test]
     fn test_assign_casualties_equal_unit_casualties(){
-        let u = Unit::new(1, String::new(), 1, 0, 5);
+        let u = Unit::new(1, String::new(), 1, 0, 5,0);
         let g = General::default();
         let mut p = Player::new(vec![u], g);
         let mut c = Casualties {
@@ -798,7 +798,7 @@ mod battle_tests{
 
     #[test]
     fn test_assign_casualties_one_less_unit_casualty(){
-        let u = Unit::new(1, String::new(), 1, 0, 5);
+        let u = Unit::new(1, String::new(), 1, 0, 5,0);
         let g = General::default();
         let mut p = Player::new(vec![u.clone(),u.clone()], g);
         let mut c = Casualties {
