@@ -66,6 +66,11 @@ impl Roster{
         v
     }
 
+    /// Get a unit by its id, will only return the first unit if there are multiple with the same id
+    pub fn get_unit_by_id(&self, id: u32) -> &Unit{
+        self.units.iter().filter(|u| u.get_id() == id).collect::<Vec<&Unit>>()[0]
+    }
+
 }
 
 
@@ -89,7 +94,13 @@ mod tests{
         for i in r.get_faction_roster(Faction::Lerastir).iter(){
             assert_eq!(*i.get_faction(), Faction::Lerastir);
         }
-
     }
 
+    #[test]
+    fn test_get_by_id(){
+        let r = Roster::new(Option::None);
+
+        let u = r.get_unit_by_id(1);
+        assert_eq!(1, u.get_id());
+    }
 }

@@ -65,6 +65,11 @@ impl Unit{
         &self.name
     }
 
+    /// Get unit id
+    pub fn get_id(&self) -> u32{
+        self.id
+    }
+
     /// Assign casualties to unit, return if operation successful
     pub fn assign_casualties(&mut self, cas : i32) -> bool{
         if cas > self.unit_size{
