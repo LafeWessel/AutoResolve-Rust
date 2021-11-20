@@ -20,7 +20,6 @@ use crate::config::Config;
 // TODO implement CLI argument functionality
     // TODO implement rand
     // TODO implement load battle from JSON
-    // TODO implement battle type
 // TODO implement TestBattle: randomized testing of battles
 
 fn main() {

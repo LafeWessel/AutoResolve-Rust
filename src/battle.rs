@@ -10,35 +10,33 @@ use std::fs::{OpenOptions};
 use std::io::Write;
 use std::fs;
 
-pub struct Battle<'a>{
+pub struct Battle{
     battle_type : BattleType,
     attacker : Player,
     defender : Player,
-    treasure : &'a Treasure,
     data : BattleData,
 }
 
-impl Battle<'_>{
+impl Battle{
 
-    pub fn new(attacker : Player, defender: Player, battle_type : BattleType, treasure : &'static Treasure, roster : &Roster, output_file : &Option<String>) -> Self{
+    pub fn new(attacker : Player, defender: Player, battle_type : BattleType,  roster : &Roster, output_file : &Option<String>) -> Self{
         Battle{
             battle_type,
             attacker,
             defender,
-            treasure,
             data : BattleData::new(roster, output_file),
         }
     }
 
     /// Resolve Battle and return results
-    fn autoresolve(&mut self) -> BattleResults{
+    pub fn autoresolve(&mut self, treasure : &Treasure) -> BattleResults{
         // determine which calculations to use for battle depending on the type
         match self.battle_type{
             BattleType::Monster { .. } => {
                 let outcome = self.monster_outcome();
                 let mut casualties = self.calculate_casualties(&outcome);
                 Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
-                let treasure_results = self.treasure_results();
+                let treasure_results = self.treasure_results(treasure);
                 BattleResults{
                     battle_type : self.battle_type,
                     outcome,
@@ -51,7 +49,7 @@ impl Battle<'_>{
                 let mut casualties = self.calculate_casualties(&outcome);
                 Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
                 Self::assign_casualties(&mut casualties.defender,&mut self.defender);
-                let treasure_results = self.treasure_results();
+                let treasure_results = self.treasure_results(treasure);
                 BattleResults{
                     battle_type : self.battle_type,
                     outcome,
@@ -222,19 +220,19 @@ impl Battle<'_>{
     }
 
     /// Determine treasure results for a battle
-    fn treasure_results(&self) -> TreasureResults {
+    fn treasure_results(&self, treasure: &Treasure) -> TreasureResults {
         TreasureResults {
-            attacker: self.find_treasure(&self.attacker),
-            defender: self.find_treasure(&self.defender),
+            attacker: self.find_treasure(&self.attacker, treasure),
+            defender: self.find_treasure(&self.defender, treasure),
         }
     }
 
     /// Determine if treasure is found by a given player
-    fn find_treasure(&self, player : &Player) -> Option<&Equipment>{
+    fn find_treasure(&self, player : &Player, treasure : &Treasure) -> Option<Equipment>{
         let mut rng = rand::thread_rng();
         let bonus = player.get_general().get_equipment(EquipmentType::Follower).get_bonus();
         if rng.gen_range(1..9) + bonus >= 5{
-            return Some(self.treasure.find_equipment());
+            return Some(treasure.find_equipment().clone());
         }
         None
     }
@@ -259,14 +257,14 @@ impl Battle<'_>{
 
 }
 
-pub struct BattleResults<'a>{
+pub struct BattleResults{
     battle_type : BattleType,
     outcome: BattleOutcome,
     casualties : BattleCasualties,
-    treasure : TreasureResults<'a>,
+    treasure : TreasureResults,
 }
 
-impl BattleResults<'_>{
+impl BattleResults{
     /// Convert BattleResults to a printable string
     pub fn battle_output(&self) -> String{
         format!("Battle Results:\n\
@@ -301,9 +299,9 @@ struct Casualties {
     unit_casualties : i32,
 }
 
-struct TreasureResults<'a>{
-    attacker : Option<&'a Equipment>,
-    defender : Option<&'a Equipment>,
+struct TreasureResults{
+    attacker : Option<Equipment>,
+    defender : Option<Equipment>,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]

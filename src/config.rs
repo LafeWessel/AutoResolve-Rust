@@ -30,22 +30,28 @@ impl Config{
     }
 
     /// Run application with provided Config
-    pub fn run_app(self){
+    pub fn run_app(&self){
 
         // run run_count battles
         for i in 1..=self.run_count {
             // run battles
             println!("Run {}:", self.run_count);
 
+            // create Players
             let attacker = Player::default();
             let defender = Player::default();
-            {
-                let b = Battle::new(attacker, defender, self.battle_type, &self.treasure, &self.roster, &self.output_file_override);
-            }
+
+            // create Battle and run
+            let mut b = Battle::new(attacker, defender, self.battle_type, &self.roster, &self.output_file_override);
+            let res = b.autoresolve(&self.treasure);
+
             // save Battle data to file
             if self.save_data{
-                // b.save_data();
+                b.save_data();
             }
+
+            // output results
+            res.battle_output();
 
         }
 

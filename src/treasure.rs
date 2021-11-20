@@ -6,7 +6,6 @@ use rand::Rng;
 pub struct Treasure{
     file_path : String,
     items : Vec<Equipment>,
-
 }
 
 impl Treasure{
