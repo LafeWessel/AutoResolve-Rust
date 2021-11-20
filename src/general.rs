@@ -1,5 +1,7 @@
 use crate::equipment::{Equipment, EquipmentType};
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct General{
     state : GeneralState,
     armor : Equipment,
@@ -94,7 +96,7 @@ impl General{
 
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum GeneralState {
     Unharmed,
     Wounded,

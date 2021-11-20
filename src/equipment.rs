@@ -1,4 +1,6 @@
-#[derive(Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Equipment{
     equipment_type : EquipmentType,
     name : String,
@@ -75,7 +77,7 @@ impl Equipment{
 
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
 pub enum EquipmentType {
     Armor = 1,
     Weapon,

@@ -21,6 +21,8 @@ use crate::config::Config;
     // TODO implement rand
     // TODO implement load battle from JSON
 // TODO implement TestBattle: randomized testing of battles
+// TODO fix GitHub CI
+// TODO add default battle examples in JSON files
 
 fn main() {
 

@@ -9,7 +9,9 @@ use std::path::Path;
 use std::fs::{OpenOptions};
 use std::io::Write;
 use std::fs;
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Battle{
     battle_type : BattleType,
     attacker : Player,
@@ -254,9 +256,19 @@ impl Battle{
         self.data.save_to_file();
     }
 
+    /// Create a Battle from a JSON file
+    pub fn read_from_json(&self, file_path : &str, roster : &Roster) -> Self{
+        Battle{
+            battle_type: BattleType::Normal,
+            attacker: Default::default(),
+            defender: Default::default(),
+            data: BattleData::new( roster, &None),
+        }
+    }
 
 }
 
+#[derive(Debug)]
 pub struct BattleResults{
     battle_type : BattleType,
     outcome: BattleOutcome,
@@ -287,11 +299,13 @@ impl BattleResults{
     }
 }
 
+#[derive(Deserialize,Serialize,Debug)]
 struct BattleCasualties{
     attacker : Casualties,
     defender : Casualties,
 }
 
+#[derive(Deserialize,Serialize,Debug)]
 struct Casualties {
     state : GeneralState,
     upgrades : i32,
@@ -299,12 +313,13 @@ struct Casualties {
     unit_casualties : i32,
 }
 
+#[derive(Deserialize,Serialize,Debug)]
 struct TreasureResults{
     attacker : Option<Equipment>,
     defender : Option<Equipment>,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq,Deserialize,Serialize)]
 pub enum BattleType {
     Normal,
     Siege{rams: i32, catapults: i32, siege_towers: i32, defenses: TownStats },
@@ -350,7 +365,7 @@ impl BattleType {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq,Serialize,Deserialize)]
 pub struct TownStats {
     supplies : i32,
     defenses: TownDefenses,
@@ -382,7 +397,7 @@ impl TownStats {
     }
 }
 
-#[derive(Debug,Eq, PartialEq, Copy, Clone)]
+#[derive(Debug,Eq, PartialEq, Copy, Clone, Deserialize,Serialize)]
 pub enum TownDefenses {
     None = 1,
     WoodenWall,
@@ -432,6 +447,7 @@ impl BattleOutcome {
     }
 }
 
+#[derive(Deserialize,Serialize,Debug)]
 struct BattleData{
     data : Vec<String>,
     unit_names : Vec<String>,

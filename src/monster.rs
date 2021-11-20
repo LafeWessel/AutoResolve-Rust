@@ -1,6 +1,7 @@
 use crate::equipment::EquipmentType;
+use serde::{Deserialize,Serialize};
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq,Deserialize,Serialize)]
 pub enum MonsterType {
     Minotaur ,
     Hobgoblin,

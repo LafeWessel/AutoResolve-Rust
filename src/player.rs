@@ -1,7 +1,9 @@
 use crate::unit::{Unit, UnitType};
 use crate::general::General;
 use crate::faction::Faction;
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Player{
     units: Vec<Unit>,
     gen: General,
