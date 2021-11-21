@@ -2,8 +2,9 @@ use crate::equipment::{Equipment, EquipmentType};
 use serde::{Deserialize, Serialize};
 use rand::Rng;
 use crate::treasure::Treasure;
+use std::fs;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug)]
 pub struct General{
     state : GeneralState,
     armor : Equipment,
@@ -120,6 +121,38 @@ impl General{
         )
     }
 
+}
+
+/// Holds General struct in a format for serializing/deserializing
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GeneralJSONObject{
+    armor : i32,
+    weapon : i32,
+    banner : i32,
+    follower : i32,
+    trinket : i32,
+    rank : i32,
+}
+
+impl GeneralJSONObject{
+    /// Produce General object from self
+    pub fn produce_general(self, treasure: &Treasure) -> General{
+        General::new(
+            Self::get_equipment(self.armor, treasure),
+            Self::get_equipment(self.weapon, treasure),
+            Self::get_equipment(self.banner, treasure),
+            Self::get_equipment(self.follower, treasure),
+            Self::get_equipment(self.trinket, treasure),
+            self.rank,
+        )
+    }
+    fn get_equipment( id : i32, treasure : &Treasure) -> Equipment{
+        if id < 0 {
+            Equipment::default()
+        }else{
+            treasure.get_item_by_id(id).clone()
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

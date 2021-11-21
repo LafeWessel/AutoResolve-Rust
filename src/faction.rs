@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use rand::Rng;
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone,Deserialize,Serialize)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
 pub enum Faction {
     Rebel,
     Beladimir,

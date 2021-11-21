@@ -1,5 +1,5 @@
 use crate::treasure::Treasure;
-use crate::player::Player;
+use crate::player::{Player, PlayerJSONObject};
 use crate::monster::MonsterType;
 use crate::equipment::{Equipment, EquipmentType};
 use crate::general::{GeneralState};
@@ -11,7 +11,7 @@ use std::io::Write;
 use std::fs;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug)]
 pub struct Battle{
     battle_type : BattleType,
     attacker : Player,
@@ -256,10 +256,11 @@ impl Battle{
         self.data.save_to_file();
     }
 
-    /// Create a Battle from a JSON file
-    pub fn read_from_json(json : &str) -> Self{
-        serde_json::from_str(json).unwrap()
-    }
+    // /// Create a Battle from a JSON file
+    // pub fn read_from_json(file_path : &str) -> Self{
+    //
+    //     serde_json::from_str(&*fs::read_to_string(file_path).unwrap()).unwrap()
+    // }
 
     /// Generate random battle
     pub fn generate_random_battle(roster : &Roster, treasure : &Treasure, equipment_ratio : u32, rank_cap: u32, reinforcement_cap: u32) -> Self{
@@ -313,13 +314,13 @@ impl BattleResults{
     }
 }
 
-#[derive(Deserialize,Serialize,Debug)]
+#[derive(Debug)]
 struct BattleCasualties{
     attacker : Casualties,
     defender : Casualties,
 }
 
-#[derive(Deserialize,Serialize,Debug)]
+#[derive(Debug)]
 struct Casualties {
     state : GeneralState,
     upgrades : i32,
@@ -327,13 +328,13 @@ struct Casualties {
     unit_casualties : i32,
 }
 
-#[derive(Deserialize,Serialize,Debug)]
+#[derive(Debug)]
 struct TreasureResults{
     attacker : Option<Equipment>,
     defender : Option<Equipment>,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq,Deserialize,Serialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum BattleType {
     Normal,
     Siege{rams: i32, catapults: i32, siege_towers: i32, defenses: TownStats },
@@ -405,7 +406,7 @@ impl BattleType {
 
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq,Serialize,Deserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct TownStats {
     supplies : i32,
     defenses: TownDefenses,
@@ -445,7 +446,7 @@ impl TownStats {
     }
 }
 
-#[derive(Debug,Eq, PartialEq, Copy, Clone, Deserialize,Serialize)]
+#[derive(Debug,Eq, PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub enum TownDefenses {
     None = 1,
     WoodenWall,
@@ -495,7 +496,7 @@ impl BattleOutcome {
     }
 }
 
-#[derive(Deserialize,Serialize,Debug)]
+#[derive(Debug)]
 struct BattleData{
     data : Vec<String>,
     unit_names : Vec<String>,
@@ -697,6 +698,30 @@ impl BattleData{
         true
     }
 
+}
+
+/// Holds Battle struct in a format for serializing/deserializing
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BattleJSONObject{
+    battle_type : BattleType,
+    attacker : PlayerJSONObject,
+    defender : PlayerJSONObject
+}
+
+impl BattleJSONObject{
+    /// Produce Battle object from self
+    pub fn produce_battle(self, roster : &Roster, treasure : &Treasure) -> Battle{
+        Battle{
+            battle_type: self.battle_type,
+            attacker: self.attacker.produce_player(roster,treasure),
+            defender: self.defender.produce_player(roster,treasure),
+            data: BattleData::new(roster,&None),
+        }
+    }
+    /// Read JSON file and convert to self
+    pub fn from_json(file_path : &str) -> Self{
+        serde_json::from_str(&*fs::read_to_string(file_path).unwrap()).unwrap()
+    }
 }
 
 #[cfg(test)]

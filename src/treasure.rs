@@ -73,6 +73,13 @@ impl Treasure{
         v.choose(&mut rand::thread_rng()).unwrap()
     }
 
+    /// Get item by id, returns first item if there are multiple with the same id
+    pub fn get_item_by_id(&self, id : i32) -> &Equipment{
+        self.items.iter().filter(|e| e.get_id() == id).collect::<Vec<&Equipment>>()[0]
+    }
+
+
+
     // TODO consider refactoring rng piece to Battle
     /// Find equipment for battle results
     pub fn battle_find_equipment(&self) -> &Equipment{

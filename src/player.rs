@@ -1,12 +1,12 @@
 use crate::unit::{Unit, UnitType};
-use crate::general::General;
+use crate::general::{General, GeneralJSONObject};
 use crate::faction::Faction;
 use serde::{Deserialize, Serialize};
 use crate::roster::Roster;
 use rand::Rng;
 use crate::treasure::Treasure;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug)]
 pub struct Player{
     units: Vec<Unit>,
     gen: General,
@@ -157,9 +157,30 @@ impl Player{
         }
 
         Player::new_filled(units, gen, fac, rein as i32, adv)
-
     }
+}
 
+/// Holds Player struct in a format for serializing/deserializing
+#[derive(Debug,Deserialize,Serialize)]
+pub struct PlayerJSONObject{
+    general : GeneralJSONObject,
+    units : Vec<u32>,
+    reinforcements : i32,
+    adv_combat : bool,
+    faction : Faction,
+}
+
+impl PlayerJSONObject{
+    /// Produce Player object from self
+    pub fn produce_player(self, roster : &Roster, treasure : &Treasure) -> Player{
+        Player::new_filled(
+            self.units.iter().map(|i| roster.get_unit_by_id(*i).clone()).collect::<Vec<Unit>>(),
+            self.general.produce_general(treasure),
+            self.faction,
+            self.reinforcements,
+            self.adv_combat
+        )
+    }
 }
 
 

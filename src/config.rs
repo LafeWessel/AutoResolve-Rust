@@ -1,6 +1,6 @@
 
 use clap::{App, Arg, ArgMatches};
-use crate::battle::{BattleType, TownStats, Battle};
+use crate::battle::{BattleType, TownStats, Battle, BattleJSONObject};
 use crate::monster::MonsterType;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
@@ -39,7 +39,7 @@ impl Config{
 
             // create Battle and run
             let mut b = match &self.battle_file {
-                Some(s) => Battle::read_from_json(s), // TODO will cause error => expecting JSON, not filepath
+                Some(s) => BattleJSONObject::from_json(s).produce_battle(&self.roster, &self.treasure),
                 None => if self.use_rand {
                     Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5)
                 } else {

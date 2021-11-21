@@ -12,7 +12,6 @@ mod config;
 use crate::config::Config;
 
 // TODO implement CLI argument functionality
-    // TODO implement load battle from JSON
 // TODO fix GitHub CI
 // TODO add default battle examples in JSON files
 // TODO save aggregate data for multiple runs
