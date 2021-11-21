@@ -26,14 +26,14 @@ impl Unit{
                 2 => Faction::Beladimir,
                 3 => Faction::Lerastir,
                 4 => Faction::Menoriad,
-                _ => panic!(format!{"Invalid integer to Faction {}!",faction_int})
+                _ => panic!("Invalid integer to Faction {}!",faction_int)
             },
             name: name,
             unit_type: match unit_type_int{
                 1 => UnitType::Melee,
                 2 => UnitType::Cavalry,
                 3 => UnitType::Ranged,
-                _ => panic!(format!{"Invalid integer to UnitType: {}", unit_type_int})
+                _ => panic!("Invalid integer to UnitType: {}", unit_type_int)
             },
             autoresolve_bonus: bonus,
             unit_size: size,

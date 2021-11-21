@@ -43,7 +43,7 @@ impl Equipment{
                 "Trinket" => EquipmentType::Trinket,
                 "Banner" => EquipmentType::Banner,
                 "Follower" => EquipmentType::Follower,
-                _ => panic!(format!("Unable to convert {} to EquipmentType", equipment_type_str))
+                _ => panic!("Unable to convert {} to EquipmentType", equipment_type_str)
             },
             name: name,
             effect: effect,
