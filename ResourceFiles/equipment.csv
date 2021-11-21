@@ -8,38 +8,38 @@ Armor,Crystalline Armor,+2 M Def against non-Cavalry,175,6,0,0,false
 Armor,Armor of Swiftness,+1 Mvmt and +1 R Def,200,7,1,0,false
 Armor,Blade Armor,M attackers take 1 hit on failed check of 2 and +1 M and R Def,250,8,1,0,false
 Armor,Dragonscale Hauberk,+2 M and R Def,300,9,2,0,true
-Weapon,Piercing Blade,+1 M Att,100,1,0,1,false
-Weapon,Piercing Blade,+1 M Att,100,2,0,1,false
-Weapon,Piercing Blade,+1 M Att,100,3,0,1,false
-Weapon,Thorn Bow,+1 R Att,100,4,0,4,false
-Weapon,Thorn Bow,+1 R Att,100,5,0,4,false
-Weapon,Shrieking Bow,+1 R Att and -1 Morale for enemies,150,6,0,4,false
-Weapon,Fiery Blade,+1 M Att and enemies take 1 hit on failed check of 2,180,7,1,1,false
-Weapon,Eagle Bow,+2 R Att,225,8,1,5,false
-Weapon,Dragonbone Blade,+3 M Att,300,9,2,1,true
-Trinket,Bear Tooth Necklace,+1 Morale,100,1,0,0,false
-Trinket,Bear Tooth Necklace,+1 Morale,100,2,0,0,false
-Trinket,Eagle Eye Pendant,+2 to checks vs Hiding units,115,3,0,0,false
-Trinket,Eagle Eye Pendant,+2 to checks vs Hiding units,115,4,0,0,false
-Trinket,Griffon Ward,+1 R Def,140,5,0,0,false
-Trinket,Griffon Ward,+1 R Def,140,6,0,0,false
-Trinket,Magical Talisman,+1 on spellcasting checks,175,7,1,0,false
-Trinket,Strange Amulet,+3 Mana cap and +1 per 4 caster levels,200,8,1,0,false
-Trinket,Draconic Phylactery,+2 on spellcasting checks,300,9,2,0,true
-Banner,Great Standard,+1 Morale,100,1,1,2,false
-Banner,Great Standard,+1 Morale,100,2,1,2,false
-Banner,Great Standard,+1 Morale,100,3,1,2,false
-Banner,Bear Standard,+1 M Def,125,4,1,2,false
-Banner,Hawk Standard,+1 R Def,125,5,1,2,false
-Banner,Legionary Banner,+1 M Def for each adj unit of same type,160,6,1,2,false
-Banner,Besiegers Banner,+1 R Att and Def,200,7,1,2,false
-Banner,Banner of the King,+2 Morale,230,8,2,2,false
-Banner,Dragon Banner,+1 Morale R and M Att and Def,300,9,2,2,true
-Follower,Barbarian,+100C from sacking,100,1,0,0,false
-Follower,Tax Collector,+50C income,150,2,0,0,false
-Follower,Sapper,-1 Enemy siege hold-out time,200,3,0,0,false
-Follower,Miner,+75C from ore trade,250,4,0,0,false
-Follower,Trader,+100C from trade,300,5,0,0,false
-Follower,Corpse Thief,+1 for treasure rolls,350,6,1,0,false
-Follower,Watchman,+2 Obedience,400,7,0,0,false
-Follower,Scholar,-1 Research time,450,8,0,0,false
+Weapon,Piercing Blade,+1 M Att,100,10,0,1,false
+Weapon,Piercing Blade,+1 M Att,100,11,0,1,false
+Weapon,Piercing Blade,+1 M Att,100,12,0,1,false
+Weapon,Thorn Bow,+1 R Att,100,13,0,4,false
+Weapon,Thorn Bow,+1 R Att,100,14,0,4,false
+Weapon,Shrieking Bow,+1 R Att and -1 Morale for enemies,150,15,0,4,false
+Weapon,Fiery Blade,+1 M Att and enemies take 1 hit on failed check of 2,180,16,1,1,false
+Weapon,Eagle Bow,+2 R Att,225,17,1,5,false
+Weapon,Dragonbone Blade,+3 M Att,300,18,2,1,true
+Trinket,Bear Tooth Necklace,+1 Morale,100,19,0,0,false
+Trinket,Bear Tooth Necklace,+1 Morale,100,20,0,0,false
+Trinket,Eagle Eye Pendant,+2 to checks vs Hiding units,115,21,0,0,false
+Trinket,Eagle Eye Pendant,+2 to checks vs Hiding units,115,22,0,0,false
+Trinket,Griffon Ward,+1 R Def,140,23,0,0,false
+Trinket,Griffon Ward,+1 R Def,140,24,0,0,false
+Trinket,Magical Talisman,+1 on spellcasting checks,175,25,1,0,false
+Trinket,Strange Amulet,+3 Mana cap and +1 per 4 caster levels,200,26,1,0,false
+Trinket,Draconic Phylactery,+2 on spellcasting checks,300,27,2,0,true
+Banner,Great Standard,+1 Morale,100,28,1,2,false
+Banner,Great Standard,+1 Morale,100,29,1,2,false
+Banner,Great Standard,+1 Morale,100,30,1,2,false
+Banner,Bear Standard,+1 M Def,125,31,1,2,false
+Banner,Hawk Standard,+1 R Def,125,32,1,2,false
+Banner,Legionary Banner,+1 M Def for each adj unit of same type,160,33,1,2,false
+Banner,Besiegers Banner,+1 R Att and Def,200,34,1,2,false
+Banner,Banner of the King,+2 Morale,230,35,2,2,false
+Banner,Dragon Banner,+1 Morale R and M Att and Def,300,36,2,2,true
+Follower,Barbarian,+100C from sacking,100,37,0,0,false
+Follower,Tax Collector,+50C income,150,38,0,0,false
+Follower,Sapper,-1 Enemy siege hold-out time,200,39,0,0,false
+Follower,Miner,+75C from ore trade,250,40,0,0,false
+Follower,Trader,+100C from trade,300,41,0,0,false
+Follower,Corpse Thief,+1 for treasure rolls,350,42,1,0,false
+Follower,Watchman,+2 Obedience,400,43,0,0,false
+Follower,Scholar,-1 Research time,450,44,0,0,false

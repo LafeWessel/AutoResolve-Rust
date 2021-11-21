@@ -45,7 +45,7 @@ impl Treasure{
             values[4].trim().parse().unwrap(),
             values[5].trim().parse().unwrap(),
             values[6].trim().parse().unwrap(),
-            values[7].trim().parse().unwrap(),
+            values[7].trim().to_lowercase().parse().unwrap(),
         )
     }
 

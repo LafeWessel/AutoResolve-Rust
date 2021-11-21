@@ -309,8 +309,11 @@ impl BattleResults{
                             self.casualties.defender.state,
                             self.casualties.defender.upgrades,
                             self.treasure.defender,self.treasure.attacker)
+    }
 
-
+    /// Get BattleOutcome
+    pub fn get_outcome(&self) -> &BattleOutcome{
+        &self.outcome
     }
 }
 
@@ -456,7 +459,7 @@ pub enum TownDefenses {
 }
 
 #[derive(Debug,Eq, PartialEq, Copy, Clone)]
-enum BattleOutcome {
+pub enum BattleOutcome {
     DecisiveVictory = 1,
     HeroicVictory,
     CloseVictory,

@@ -11,13 +11,12 @@ mod config;
 
 use crate::config::Config;
 
-// TODO implement CLI argument functionality
 // TODO fix GitHub CI
 // TODO add default battle examples in JSON files
-// TODO save aggregate data for multiple runs
+// TODO print aggregate data for multiple runs
 // TODO convert BattleData field in Battle to be optional?
-// TODO create struct solely for serialize/deserializing Battle objects => Remove serialize/deserialize for all objects and re-add as necessary
-
+// TODO convert General to have Option<Equipment> instead of Equipment fields
+// TODO make data saving for multiple battle runs occur at the end of all runs instead of each run
 fn main() {
 
     let cfg = Config::initialize();

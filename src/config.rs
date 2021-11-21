@@ -1,6 +1,6 @@
 
 use clap::{App, Arg, ArgMatches};
-use crate::battle::{BattleType, TownStats, Battle, BattleJSONObject};
+use crate::battle::{BattleType, TownStats, Battle, BattleJSONObject, BattleOutcome};
 use crate::monster::MonsterType;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
@@ -12,6 +12,7 @@ pub struct Config {
     treasure : Treasure,
     use_rand : bool,
     save_data : bool,
+    log : bool,
     output_file_override : Option<String>,
     run_count: i32,
     battle_type : BattleType,
@@ -32,10 +33,15 @@ impl Config{
     /// Run application with provided Config
     pub fn run_app(&self){
 
+        // aggregate data for runs
+        let mut battle_outcomes : [i32;7] = [0;7];
+
         // run run_count battles
         for i in 1..=self.run_count {
             // run battles
-            println!("Run {}:", self.run_count);
+            if self.log || i % f32::ceil(self.run_count as f32/10.0) as i32 == 0{
+                println!("Run {}", i);
+            }
 
             // create Battle and run
             let mut b = match &self.battle_file {
@@ -55,9 +61,32 @@ impl Config{
                 b.save_data();
             }
 
+            match res.get_outcome(){
+                BattleOutcome::DecisiveVictory => battle_outcomes[0] += 1,
+                BattleOutcome::HeroicVictory => battle_outcomes[1] += 1,
+                BattleOutcome::CloseVictory => battle_outcomes[2] += 1,
+                BattleOutcome::Draw => battle_outcomes[3] += 1,
+                BattleOutcome::CloseDefeat => battle_outcomes[4] += 1,
+                BattleOutcome::ValiantDefeat => battle_outcomes[5] += 1,
+                BattleOutcome::CrushingDefeat => battle_outcomes[6] += 1,
+            };
+
             // output results
-            res.battle_output();
+            if self.log{
+                println!("{}",res.battle_output());
+            }
         }
+        println!("(For attacker)\n\
+        Decisive Victory:{}\n\
+        Heroic Victory:{}\n\
+        Close Victory:{}\n\
+        Draw:{}\n\
+        Close Defeat:{}\n\
+        Valiant Defeat:{}\n\
+        Crushing Defeat:{}",
+                 battle_outcomes[0], battle_outcomes[1], battle_outcomes[2],
+                 battle_outcomes[3],
+                 battle_outcomes[4], battle_outcomes[5], battle_outcomes[6]);
     }
 
     /// Parse arguments from provided CLI command and return a new Config
@@ -67,6 +96,7 @@ impl Config{
             treasure: Treasure::new(matches.value_of("treasure_file")),
             use_rand: matches.is_present("random"),
             save_data: matches.is_present("save"),
+            log : matches.is_present("log"),
             output_file_override: matches.value_of("output_file").map(|s| s.to_string()),
             run_count: matches.value_of("run_count").unwrap().parse().unwrap(),
             // use default values for initializing battle type, they can be altered later
@@ -92,6 +122,9 @@ impl Config{
         let save = Arg::with_name("save")
             .short("s").long("save")
             .help("Save battle runs to file");
+        let log = Arg::with_name("log")
+            .short("l").long("log")
+            .help("Print results from each battle run");
         // Arg for specifying which file to save runs to
         let output_file = Arg::with_name("output_file")
             .short("f").long("file")
@@ -137,6 +170,7 @@ impl Config{
             .arg(roster_file)
             .arg(treasure_file)
             .arg(battle_file)
+            .arg(log)
     }
 
 }
@@ -155,6 +189,7 @@ mod cli_tests{
         let cfg = Config::parse_app_arguments(&matches);
         assert!(!cfg.save_data);
         assert!(!cfg.use_rand);
+        assert!(!cfg.log);
         assert_eq!(cfg.run_count, 1);
         assert_eq!(cfg.battle_type,BattleType::Normal);
         assert_eq!(None,cfg.output_file_override);
@@ -164,11 +199,12 @@ mod cli_tests{
     #[test]
     fn test_non_default_cli_options(){
         let app = Config::initialize_clap_app();
-        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","-u","./ResourceFiles/units.csv","-t","./ResourceFiles/equipment.csv","-j","test4"];
+        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","-u","./ResourceFiles/units.csv","-t","./ResourceFiles/equipment.csv","-j","test4","-l"];
         let matches = app.get_matches_from(args);
         let cfg = Config::parse_app_arguments(&matches);
         assert!(cfg.save_data);
         assert!(cfg.use_rand);
+        assert!(cfg.log);
         assert_eq!(cfg.run_count, 2);
         assert_eq!(cfg.battle_type,BattleType::Monster {monster:MonsterType::Minotaur});
         assert_eq!(Some("test1".to_string()),cfg.output_file_override);
