@@ -37,16 +37,14 @@ impl Config{
             // run battles
             println!("Run {}:", self.run_count);
 
-            // create Players
-            let attacker = Player::default();
-            let defender = Player::default();
-
             // create Battle and run
             let mut b = match &self.battle_file {
-                Some(s) => Battle::read_from_json(s),
+                Some(s) => Battle::read_from_json(s), // TODO will cause error => expecting JSON, not filepath
                 None => if self.use_rand {
                     Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5)
                 } else {
+                    let attacker = Player::default();
+                    let defender = Player::default();
                     Battle::new(attacker, defender, self.battle_type, &self.roster, &self.output_file_override)
                 },
             };

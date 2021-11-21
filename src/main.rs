@@ -12,14 +12,12 @@ mod config;
 use crate::config::Config;
 
 // TODO implement CLI argument functionality
-    // TODO implement rand
     // TODO implement load battle from JSON
-// TODO implement TestBattle: randomized testing of battles
 // TODO fix GitHub CI
 // TODO add default battle examples in JSON files
 // TODO save aggregate data for multiple runs
 // TODO convert BattleData field in Battle to be optional?
-// TODO create struct solely for serialize/deserializing Battle objects
+// TODO create struct solely for serialize/deserializing Battle objects => Remove serialize/deserialize for all objects and re-add as necessary
 
 fn main() {
 
