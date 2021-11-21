@@ -1,6 +1,3 @@
-use crate::roster::Roster;
-use crate::treasure::Treasure;
-
 mod treasure;
 mod roster;
 mod unit;
@@ -12,9 +9,6 @@ mod battle;
 mod monster;
 mod config;
 
-use clap::{App, Arg, ArgMatches};
-use crate::battle::{BattleType, TownStats};
-use crate::monster::MonsterType;
 use crate::config::Config;
 
 // TODO implement CLI argument functionality
@@ -23,6 +17,9 @@ use crate::config::Config;
 // TODO implement TestBattle: randomized testing of battles
 // TODO fix GitHub CI
 // TODO add default battle examples in JSON files
+// TODO save aggregate data for multiple runs
+// TODO convert BattleData field in Battle to be optional?
+// TODO create struct solely for serialize/deserializing Battle objects
 
 fn main() {
 
