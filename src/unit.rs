@@ -1,7 +1,7 @@
 use crate::faction::Faction;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone,Deserialize,Serialize)]
+#[derive(Debug, Clone)]
 pub struct Unit{
     faction: Faction,
     name: String,
@@ -82,7 +82,7 @@ impl Unit{
 
 }
 
-#[derive(Debug,Eq,PartialEq,Copy, Clone,Serialize,Deserialize)]
+#[derive(Debug,Eq,PartialEq,Copy,Clone)]
 pub enum UnitType {
     Melee,
     Cavalry,
