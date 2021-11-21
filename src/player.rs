@@ -2,6 +2,9 @@ use crate::unit::{Unit, UnitType};
 use crate::general::General;
 use crate::faction::Faction;
 use serde::{Deserialize, Serialize};
+use crate::roster::Roster;
+use rand::Rng;
+use crate::treasure::Treasure;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Player{
@@ -136,6 +139,27 @@ impl Player{
     pub fn get_unit_count_by_name(&self, name : &str) -> i32{
         self.units.iter().filter(|u| u.get_name() == name).collect::<Vec<&Unit>>().len() as i32
     }
+
+    /// Generate a Player with random values
+    pub fn generate_random_player(equipment_ratio: u32, rank_cap:u32, roster : &Roster, reinforcement_cap : u32, treasure : &Treasure) -> Self{
+        let mut rng = rand::thread_rng();
+
+        let gen = General::generate_random_general(equipment_ratio, rank_cap, treasure);
+        let fac = Faction::generate_random_faction();
+        let rein = rng.gen_range(0..=reinforcement_cap);
+        let adv = rng.gen::<bool>();
+        let mut units: Vec<Unit> = vec![];
+
+        let faction_roster = roster.get_faction_roster(fac);
+
+        for i in 1..rng.gen_range(2..=20){
+            units.push(faction_roster[rng.gen_range(0..faction_roster.len())].clone());
+        }
+
+        Player::new_filled(units, gen, fac, rein as i32, adv)
+
+    }
+
 }
 
 

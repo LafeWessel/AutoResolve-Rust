@@ -1,5 +1,7 @@
 use crate::equipment::{Equipment, EquipmentType};
 use serde::{Deserialize, Serialize};
+use rand::Rng;
+use crate::treasure::Treasure;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct General{
@@ -94,6 +96,30 @@ impl General{
         self.bonus
     }
 
+    /// Generate a General with random equipment and rank
+    pub fn generate_random_general(equipment_ratio : u32, rank_cap : u32, treasure: &Treasure) -> Self{
+        let mut rng = rand::thread_rng();
+
+        General::new(
+            match rng.gen_range(1..equipment_ratio+1) {
+            1 => treasure.get_item_by_type(EquipmentType::Armor).clone(),
+            _ => Equipment::default()
+        }, match rng.gen_range(1..equipment_ratio+1) {
+            1 => treasure.get_item_by_type(EquipmentType::Weapon).clone(),
+            _ => Equipment::default()
+        }, match rng.gen_range(1..equipment_ratio+1) {
+            1 => treasure.get_item_by_type(EquipmentType::Banner).clone(),
+            _ => Equipment::default()
+        }, match rng.gen_range(1..equipment_ratio+1) {
+            1 => treasure.get_item_by_type(EquipmentType::Follower).clone(),
+            _ => Equipment::default()
+        }, match rng.gen_range(1..equipment_ratio+1) {
+            1 => treasure.get_item_by_type(EquipmentType::Trinket).clone(),
+            _ => Equipment::default()
+        }, rng.gen_range(1..rank_cap+1) as i32
+        )
+    }
+
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -113,15 +139,15 @@ mod tests{
         let r = Treasure::new(Option::None);
         let mut g = General::default();
 
-        g.set_equipment(r.get_item(EquipmentType::Armor).clone());
+        g.set_equipment(r.get_item_by_type(EquipmentType::Armor).clone());
         assert_eq!(EquipmentType::Armor, *g.get_equipment(EquipmentType::Armor).equip_type());
-        g.set_equipment(r.get_item(EquipmentType::Weapon).clone());
+        g.set_equipment(r.get_item_by_type(EquipmentType::Weapon).clone());
         assert_eq!(EquipmentType::Weapon, *g.get_equipment(EquipmentType::Weapon).equip_type());
-        g.set_equipment(r.get_item(EquipmentType::Banner).clone());
+        g.set_equipment(r.get_item_by_type(EquipmentType::Banner).clone());
         assert_eq!(EquipmentType::Banner, *g.get_equipment(EquipmentType::Banner).equip_type());
-        g.set_equipment(r.get_item(EquipmentType::Trinket).clone());
+        g.set_equipment(r.get_item_by_type(EquipmentType::Trinket).clone());
         assert_eq!(EquipmentType::Trinket, *g.get_equipment(EquipmentType::Trinket).equip_type());
-        g.set_equipment(r.get_item(EquipmentType::Follower).clone());
+        g.set_equipment(r.get_item_by_type(EquipmentType::Follower).clone());
         assert_eq!(EquipmentType::Follower, *g.get_equipment(EquipmentType::Follower).equip_type());
 
     }

@@ -42,7 +42,14 @@ impl Config{
             let defender = Player::default();
 
             // create Battle and run
-            let mut b = Battle::new(attacker, defender, self.battle_type, &self.roster, &self.output_file_override);
+            let mut b = match &self.battle_file {
+                Some(s) => Battle::read_from_json(s),
+                None => if self.use_rand {
+                    Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5)
+                } else {
+                    Battle::new(attacker, defender, self.battle_type, &self.roster, &self.output_file_override)
+                },
+            };
             let res = b.autoresolve(&self.treasure);
 
             // save Battle data to file
@@ -52,11 +59,7 @@ impl Config{
 
             // output results
             res.battle_output();
-
         }
-
-
-
     }
 
     /// Parse arguments from provided CLI command and return a new Config

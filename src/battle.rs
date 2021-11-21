@@ -2,7 +2,7 @@ use crate::treasure::Treasure;
 use crate::player::Player;
 use crate::monster::MonsterType;
 use crate::equipment::{Equipment, EquipmentType};
-use crate::general::GeneralState;
+use crate::general::{GeneralState};
 use rand::Rng;
 use crate::roster::Roster;
 use std::path::Path;
@@ -234,7 +234,7 @@ impl Battle{
         let mut rng = rand::thread_rng();
         let bonus = player.get_general().get_equipment(EquipmentType::Follower).get_bonus();
         if rng.gen_range(1..9) + bonus >= 5{
-            return Some(treasure.find_equipment().clone());
+            return Some(treasure.battle_find_equipment().clone());
         }
         None
     }
@@ -257,12 +257,26 @@ impl Battle{
     }
 
     /// Create a Battle from a JSON file
-    pub fn read_from_json(&self, file_path : &str, roster : &Roster) -> Self{
+    pub fn read_from_json(json : &str) -> Self{
+        serde_json::from_str(json).unwrap()
+    }
+
+    /// Generate random battle
+    pub fn generate_random_battle(roster : &Roster, treasure : &Treasure, equipment_ratio : u32, rank_cap: u32, reinforcement_cap: u32) -> Self{
+        // create battle type
+        let battle_type= BattleType::generate_random_battle_type();
+
+        // create attacker
+        let attacker = Player::generate_random_player(equipment_ratio,rank_cap,roster,reinforcement_cap,treasure);
+
+        // create defender
+        let defender = Player::generate_random_player(equipment_ratio,rank_cap,roster,reinforcement_cap,treasure);
+
         Battle{
-            battle_type: BattleType::Normal,
-            attacker: Default::default(),
-            defender: Default::default(),
-            data: BattleData::new( roster, &None),
+            battle_type,
+            attacker,
+            defender,
+            data: BattleData::new(roster, &None)
         }
     }
 
@@ -363,6 +377,32 @@ impl BattleType {
             BattleType::Monster { .. } => String::from("Monster"),
         }
     }
+
+    fn generate_random_battle_type() -> Self{
+        let mut rng = rand::thread_rng();
+
+        match rng.gen_range(1..=5){
+            1 => BattleType::Normal,
+            2 => BattleType::Siege {
+                rams: rng.gen_range(0..=5),
+                catapults: rng.gen_range(0..=5),
+                siege_towers: rng.gen_range(0..=5),
+                defenses: TownStats::new(rng.gen_range(0..=10), match rng.gen_range(1..=5){
+                    1 => TownDefenses::None,
+                    2 => TownDefenses::WoodenWall,
+                    3 => TownDefenses::WoodenWallAndMoat,
+                    4 => TownDefenses::StoneWall,
+                    5 => TownDefenses::StoneWallAndMoat,
+                    _ => panic!("Invalid number generated")
+                })
+            },
+            3 => BattleType::Raid { defenses: Default::default() },
+            4 => BattleType::Naval { attacker_ships: 0, defender_ships: 0 },
+            5 => BattleType::Monster { monster: MonsterType::Minotaur },
+            _ => panic!("Invalid number generated")
+        }
+    }
+
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq,Serialize,Deserialize)]
@@ -381,6 +421,14 @@ impl Default for TownStats{
 }
 
 impl TownStats {
+
+    pub fn new(supplies : i32, defenses : TownDefenses) -> Self{
+        TownStats{
+            supplies,
+            defenses
+        }
+    }
+
     /// Get supplies
     pub fn get_supplies(&self) -> i32{
         self.supplies
