@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Equipment{
     equipment_type : EquipmentType,
     name : String,
     effect : String,
     coin_value : i32,
-    index : usize,
+    id: i32,
     autoresolve_bonus: i32,
     range : i32,
     dragon_equipment : bool,
@@ -25,7 +25,7 @@ impl Clone for Equipment{
             name: self.name.clone(),
             effect: self.effect.clone(),
             coin_value: self.coin_value,
-            index: self.index,
+            id: self.id,
             autoresolve_bonus: self.autoresolve_bonus,
             range: self.range,
             dragon_equipment: self.dragon_equipment,
@@ -34,8 +34,7 @@ impl Clone for Equipment{
 }
 
 impl Equipment{
-    pub fn new(equipment_type_str: &str, name : String, effect : String, value : i32, index : usize,
-    bonus : i32, range: i32, dragon : bool) -> Self{
+    pub fn new(equipment_type_str: &str, name : String, effect : String, coin_value : i32, id: i32, bonus : i32, range: i32, dragon : bool) -> Self{
         Equipment{
             equipment_type: match equipment_type_str{
                 "Armor" => EquipmentType::Armor,
@@ -45,12 +44,12 @@ impl Equipment{
                 "Follower" => EquipmentType::Follower,
                 _ => panic!("Unable to convert {} to EquipmentType", equipment_type_str)
             },
-            name: name,
-            effect: effect,
-            coin_value: value,
-            index: index,
+            name,
+            effect,
+            coin_value,
+            id,
             autoresolve_bonus: bonus,
-            range: range,
+            range,
             dragon_equipment : dragon,
         }
     }
@@ -75,9 +74,14 @@ impl Equipment{
         self.name.as_str()
     }
 
+    /// Get equipment id
+    pub fn get_id(&self) -> i32{
+        self.id
+    }
+
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug,PartialEq,Eq,Copy,Clone)]
 pub enum EquipmentType {
     Armor = 1,
     Weapon,
