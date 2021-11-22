@@ -149,12 +149,12 @@ impl Config{
             .value_name("TYPE");
         // Arg for specifying a different unit/roster file to use
         let roster_file = Arg::with_name("roster_file")
-            .short("u").long("unit")
+            .long("unit")
             .help("Override input file for reading unit/roster data")
             .value_name("FILE");
         // Arg for specifying a different treasure file to use
         let treasure_file = Arg::with_name("treasure_file")
-            .short("t").long("treasure")
+            .long("treasure")
             .help("Override input file for reading treasure/equipment data")
             .value_name("FILE");
         // Arg for specifying situation file to run
@@ -205,7 +205,7 @@ mod cli_tests{
     #[test]
     fn test_non_default_cli_options(){
         let app = Config::initialize_clap_app();
-        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","-u","./ResourceFiles/units.csv","-t","./ResourceFiles/equipment.csv","-j","test4","-l"];
+        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","--unit","./ResourceFiles/units.csv","--treasure","./ResourceFiles/equipment.csv","-j","test4","-l"];
         let matches = app.get_matches_from(args);
         let cfg = Config::parse_app_arguments(&matches);
         assert!(cfg.save_data);

@@ -78,9 +78,6 @@ impl Treasure{
         self.items.iter().filter(|e| e.get_id() == id).collect::<Vec<&Equipment>>()[0]
     }
 
-
-
-    // TODO consider refactoring rng piece to Battle
     /// Find equipment for battle results
     pub fn battle_find_equipment(&self) -> &Equipment{
         let mut rng = rand::thread_rng();

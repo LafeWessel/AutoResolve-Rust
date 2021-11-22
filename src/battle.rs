@@ -567,7 +567,9 @@ impl BattleData{
     /// Save initial battle data before running autoresolve
     fn collect_initial_battle_data(&mut self, battle : &Battle){
         // set output location
-        self.output_location.push_str(&*battle.battle_type.get_data_path());
+        if self.output_location == "./DataCapture/"{
+            self.output_location.push_str(&*battle.battle_type.get_data_path());
+        }
 
         // Battle type
         self.data[0] = battle.battle_type.get_name();
