@@ -2,6 +2,7 @@ use crate::equipment::{Equipment, EquipmentType};
 use std::fs;
 use rand::seq::SliceRandom;
 use rand::Rng;
+use std::ops::Deref;
 
 pub struct Treasure{
     file_path : String,
@@ -74,8 +75,11 @@ impl Treasure{
     }
 
     /// Get item by id, returns first item if there are multiple with the same id
-    pub fn get_item_by_id(&self, id : i32) -> &Equipment{
-        self.items.iter().filter(|e| e.get_id() == id).collect::<Vec<&Equipment>>()[0]
+    pub fn get_item_by_id(&self, id : i32) -> Option<&Equipment>{
+        self.items.iter()
+            .filter(|e| e.get_id() == id)
+            .collect::<Vec<&Equipment>>()
+            .get(0).map(|e| e.clone())
     }
 
     /// Find equipment for battle results
@@ -112,5 +116,17 @@ mod tests{
         let t = Treasure::new(Option::None);
 
         assert!(t.get_dragon_equipment().get_is_dragon());
+    }
+
+    #[test]
+    fn test_get_by_id(){
+        let t = Treasure::new(None);
+        let e = t.get_item_by_id(0);
+        assert_eq!(None, e);
+        let e = t.get_item_by_id(1);
+        assert!(match e {
+            Some(k) => true,
+            None => false,
+        });
     }
 }
