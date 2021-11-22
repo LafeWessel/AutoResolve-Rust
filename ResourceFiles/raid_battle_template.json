@@ -1,5 +1,38 @@
 {
-  "battle_type" : "Normal",
-  "attacker" : ,
-  "defender" :
+  "battle_type" : {
+    "Raid": {
+      "defenses" : {
+        "supplies" : 5,
+        "defenses" : "WoodenWall"
+      }
+    }
+  },
+  "attacker" : {
+    "general" : {
+      "armor" : 0,
+      "weapon" : 10,
+      "banner" : 28,
+      "follower" : 0,
+      "trinket" : 19,
+      "rank" : 3
+    },
+    "units" : [1,2,3],
+    "reinforcements": 1,
+    "adv_combat" : false,
+    "faction" : "Beladimir"
+  },
+  "defender" : {
+    "general" : {
+      "armor" : 0,
+      "weapon" : 10,
+      "banner" : 28,
+      "follower" : 37,
+      "trinket" : 19,
+      "rank" : 3
+    },
+    "units" : [11,12,13,14,15],
+    "reinforcements": 0,
+    "adv_combat" : true,
+    "faction" : "Menoriad"
+  }
 }
