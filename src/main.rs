@@ -11,7 +11,6 @@ mod config;
 
 use crate::config::Config;
 
-// TODO fix GitHub CI
 // TODO add default battle examples in JSON files
 fn main() {
 
