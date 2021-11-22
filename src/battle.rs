@@ -10,13 +10,13 @@ use std::fs::{OpenOptions};
 use std::io::Write;
 use std::fs;
 use serde::{Deserialize, Serialize};
+use std::borrow::Borrow;
 
 #[derive(Debug)]
 pub struct Battle{
     battle_type : BattleType,
     attacker : Player,
     defender : Player,
-    data : BattleData,
 }
 
 impl Battle{
@@ -26,44 +26,49 @@ impl Battle{
             battle_type,
             attacker,
             defender,
-            data : BattleData::new(roster, output_file),
         }
     }
 
     /// Resolve Battle and return results
-    pub fn autoresolve(&mut self, treasure : &Treasure) -> BattleResults{
+    pub fn autoresolve(&mut self, treasure : &Treasure, data : &mut BattleData) -> BattleResults{
         // determine which calculations to use for battle depending on the type
         match self.battle_type{
             BattleType::Monster { .. } => {
-                let outcome = self.monster_outcome();
+                data.collect_initial_battle_data(&self);
+                let outcome = self.monster_outcome(data);
                 let mut casualties = self.calculate_casualties(&outcome);
                 Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
                 let treasure_results = self.treasure_results(treasure);
-                BattleResults{
+                let b = BattleResults{
                     battle_type : self.battle_type,
                     outcome,
                     casualties,
                     treasure: treasure_results,
-                }
+                };
+                data.collect_battle_results(&b, &self);
+                b
             },
             _ => {
-                let outcome = self.calculate_outcome();
+                data.collect_initial_battle_data(&self);
+                let outcome = self.calculate_outcome(data);
                 let mut casualties = self.calculate_casualties(&outcome);
                 Self::assign_casualties(&mut casualties.attacker, &mut self.attacker);
                 Self::assign_casualties(&mut casualties.defender,&mut self.defender);
                 let treasure_results = self.treasure_results(treasure);
-                BattleResults{
+                let b = BattleResults{
                     battle_type : self.battle_type,
                     outcome,
                     casualties,
                     treasure: treasure_results,
-                }
+                };
+                data.collect_battle_results(&b, &self);
+                b
             },
         }
     }
 
     /// Calculate the outcome for a Monster Battle type
-    fn monster_outcome(&mut self) -> BattleOutcome{
+    fn monster_outcome(&mut self, data : &mut BattleData) -> BattleOutcome{
         let mut total : f32 = 0.0;
         // add attacker bonus
         total += self.attacker.get_autoresolve_bonus() as f32;
@@ -78,12 +83,12 @@ impl Battle{
         total += self.battle_type.get_calculation() as f32;
 
         // determine outcome
-        self.data.collect_battle_calculations(att_rand,def_rand,total);
+        data.collect_battle_calculations(att_rand,def_rand,total);
         BattleOutcome::determine_outcome(total)
     }
 
     /// Calculate the outcome of the battle based on each Player's statistics
-    fn calculate_outcome(&mut self) -> BattleOutcome {
+    fn calculate_outcome(&mut self, data : &mut BattleData) -> BattleOutcome {
         let mut total : f32 = 0.0;
 
         // get player autoresolve bonuses
@@ -106,7 +111,7 @@ impl Battle{
         total += self.battle_type.get_calculation() as f32;
 
         // determine outcome
-        self.data.collect_battle_calculations(att_rand,def_rand,total);
+        data.collect_battle_calculations(att_rand,def_rand,total);
         BattleOutcome::determine_outcome(total)
     }
 
@@ -251,21 +256,11 @@ impl Battle{
         sum
     }
 
-    /// Write Battle data to file
-    pub fn save_data(&self){
-        self.data.save_to_file();
-    }
-
-    // /// Create a Battle from a JSON file
-    // pub fn read_from_json(file_path : &str) -> Self{
-    //
-    //     serde_json::from_str(&*fs::read_to_string(file_path).unwrap()).unwrap()
-    // }
 
     /// Generate random battle
-    pub fn generate_random_battle(roster : &Roster, treasure : &Treasure, equipment_ratio : u32, rank_cap: u32, reinforcement_cap: u32) -> Self{
+    pub fn generate_random_battle(roster : &Roster, treasure : &Treasure, equipment_ratio : u32, rank_cap: u32, reinforcement_cap: u32, battle_type : Option<BattleType>) -> Self{
         // create battle type
-        let battle_type= BattleType::generate_random_battle_type();
+        let b_type= battle_type.unwrap_or_else(|| BattleType::generate_random_battle_type()).get_random_values_for_type();
 
         // create attacker
         let attacker = Player::generate_random_player(equipment_ratio,rank_cap,roster,reinforcement_cap,treasure);
@@ -274,10 +269,9 @@ impl Battle{
         let defender = Player::generate_random_player(equipment_ratio,rank_cap,roster,reinforcement_cap,treasure);
 
         Battle{
-            battle_type,
+            battle_type: b_type,
             attacker,
             defender,
-            data: BattleData::new(roster, &None)
         }
     }
 
@@ -372,7 +366,7 @@ impl BattleType {
     }
 
     /// Get name of enum
-    fn get_name(&self) -> String{
+    pub fn get_name(&self) -> String{
         match *self{
             BattleType::Normal => String::from("Normal"),
             BattleType::Siege { .. } => String::from("Siege"),
@@ -382,28 +376,54 @@ impl BattleType {
         }
     }
 
+    /// Create randomized BattleType
     fn generate_random_battle_type() -> Self{
         let mut rng = rand::thread_rng();
 
         match rng.gen_range(1..=5){
             1 => BattleType::Normal,
-            2 => BattleType::Siege {
+            2 => {
+                let b = BattleType::Siege {rams:0,catapults:0,siege_towers:0,defenses:TownStats::default()};
+                b.get_random_values_for_type()
+            },
+            3 =>{
+                let b = BattleType::Raid{defenses: TownStats::default()};
+                b.get_random_values_for_type()
+            },
+            4 =>{
+                let b = BattleType::Naval{attacker_ships:0,defender_ships:0};
+                b.get_random_values_for_type()
+            },
+            5 =>{
+                let b = BattleType::Monster{monster:MonsterType::Minotaur};
+                b.get_random_values_for_type()
+            },
+            _ => panic!("Invalid number generated")
+        }
+    }
+
+    /// Fill BattleType with random values
+    fn get_random_values_for_type(self) -> Self{
+        let mut rng = rand::thread_rng();
+
+        match self{
+            BattleType::Normal => BattleType::Normal,
+            BattleType::Siege { .. } => BattleType::Siege {
                 rams: rng.gen_range(0..=5),
                 catapults: rng.gen_range(0..=5),
                 siege_towers: rng.gen_range(0..=5),
-                defenses: TownStats::new(rng.gen_range(0..=10), match rng.gen_range(1..=5){
-                    1 => TownDefenses::None,
-                    2 => TownDefenses::WoodenWall,
-                    3 => TownDefenses::WoodenWallAndMoat,
-                    4 => TownDefenses::StoneWall,
-                    5 => TownDefenses::StoneWallAndMoat,
-                    _ => panic!("Invalid number generated")
-                })
+                defenses: TownStats::get_random_town_stats()
             },
-            3 => BattleType::Raid { defenses: Default::default() },
-            4 => BattleType::Naval { attacker_ships: 0, defender_ships: 0 },
-            5 => BattleType::Monster { monster: MonsterType::Minotaur },
-            _ => panic!("Invalid number generated")
+            BattleType::Raid { .. } => BattleType::Raid {
+                defenses: TownStats::get_random_town_stats()
+            },
+            BattleType::Naval { .. } => BattleType::Naval {
+                attacker_ships: rng.gen_range(1..=10),
+                defender_ships: rng.gen_range(1..=10)
+            },
+            BattleType::Monster { .. } => BattleType::Monster {
+                monster: MonsterType::get_random_monster()
+            },
         }
     }
 
@@ -446,6 +466,22 @@ impl TownStats {
     /// Get town defense autoresolve bonus
     pub fn get_autoresolve_bonus(&self) -> i32{
         (self.defenses as i32 * 10) - 10
+    }
+
+    /// Create randomized TownStats
+    pub fn get_random_town_stats() -> Self{
+        let mut rng = rand::thread_rng();
+        TownStats{
+            supplies: rng.gen_range(0..=10),
+            defenses: match rng.gen_range(1..=5) {
+                1 => TownDefenses::None,
+                2 => TownDefenses::WoodenWall,
+                3 => TownDefenses::WoodenWallAndMoat,
+                4 => TownDefenses::StoneWall,
+                5 => TownDefenses::StoneWallAndMoat,
+                _ => panic!("Invalid number generated")
+            }
+        }
     }
 }
 
@@ -500,7 +536,7 @@ impl BattleOutcome {
 }
 
 #[derive(Debug)]
-struct BattleData{
+pub struct BattleData{
     data : Vec<String>,
     unit_names : Vec<String>,
     output_location : String,
@@ -511,7 +547,7 @@ struct BattleData{
 
 impl BattleData{
     /// Create new BattleData. If output_file is None, uses default for each kind of BattleType.
-    fn new(roster : &Roster, output_file: &Option<String>) -> Self{
+    pub fn new(roster : &Roster, output_file: &Option<String>) -> Self{
 
         let output = match output_file {
             None => String::from("./DataCapture/"),
@@ -674,7 +710,7 @@ impl BattleData{
     }
 
     /// Save results to disk, return if operation was successful
-    fn save_to_file(&self) -> bool{
+    pub fn save_to_file(&self) -> bool{
         if !self.got_calculations || !self.got_results || !self.got_initial{
             println!("Unable to write because not all data yet set\n\t\
             Initial:{}\n\tRandoms:{}\n\tResults:{}"
@@ -718,7 +754,6 @@ impl BattleJSONObject{
             battle_type: self.battle_type,
             attacker: self.attacker.produce_player(roster,treasure),
             defender: self.defender.produce_player(roster,treasure),
-            data: BattleData::new(roster,&None),
         }
     }
     /// Read JSON file and convert to self

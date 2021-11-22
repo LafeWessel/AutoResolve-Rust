@@ -1,5 +1,6 @@
 use crate::equipment::EquipmentType;
 use serde::{Deserialize,Serialize};
+use rand::Rng;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub enum MonsterType {
@@ -45,6 +46,20 @@ impl MonsterType {
             MonsterType::Giant => vec![EquipmentType::Weapon, EquipmentType::Trinket, EquipmentType::Armor],
             MonsterType::Demon => vec![EquipmentType::Armor, EquipmentType::Banner],
             MonsterType::Dragon => vec![],
+        }
+    }
+
+    /// Get random Monster
+    pub fn get_random_monster() -> Self{
+        let mut rng = rand::thread_rng();
+        match rng.gen_range(1..=6){
+            1 => MonsterType::Minotaur,
+            2 => MonsterType::Hobgoblin,
+            3 => MonsterType::Troll,
+            4 => MonsterType::Giant,
+            5 => MonsterType::Demon,
+            6 => MonsterType::Dragon,
+            _ => panic!("Invalid number generated")
         }
     }
 }

@@ -1,6 +1,6 @@
 
 use clap::{App, Arg, ArgMatches};
-use crate::battle::{BattleType, TownStats, Battle, BattleJSONObject, BattleOutcome};
+use crate::battle::{BattleType, TownStats, Battle, BattleJSONObject, BattleOutcome, BattleData};
 use crate::monster::MonsterType;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
@@ -15,7 +15,7 @@ pub struct Config {
     log : bool,
     output_file_override : Option<String>,
     run_count: i32,
-    battle_type : BattleType,
+    battle_type : Option<BattleType>,
     battle_file : Option<String>,
 
 }
@@ -35,6 +35,7 @@ impl Config{
 
         // aggregate data for runs
         let mut battle_outcomes : [i32;7] = [0;7];
+        let mut data : Vec<BattleData>  = vec![];
 
         // run run_count battles
         for i in 1..=self.run_count {
@@ -43,23 +44,20 @@ impl Config{
                 println!("Run {}", i);
             }
 
+            data.push(BattleData::new(&self.roster, &self.output_file_override));
+
             // create Battle and run
             let mut b = match &self.battle_file {
                 Some(s) => BattleJSONObject::from_json(s).produce_battle(&self.roster, &self.treasure),
                 None => if self.use_rand {
-                    Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5)
+                    Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5, self.battle_type)
                 } else {
                     let attacker = Player::default();
                     let defender = Player::default();
-                    Battle::new(attacker, defender, self.battle_type, &self.roster, &self.output_file_override)
+                    Battle::new(attacker, defender, self.battle_type.unwrap_or_else(|| BattleType::Normal), &self.roster, &self.output_file_override)
                 },
             };
-            let res = b.autoresolve(&self.treasure);
-
-            // save Battle data to file
-            if self.save_data{
-                b.save_data();
-            }
+            let res = b.autoresolve(&self.treasure, &mut data[(i-1) as usize]);
 
             match res.get_outcome(){
                 BattleOutcome::DecisiveVictory => battle_outcomes[0] += 1,
@@ -76,7 +74,7 @@ impl Config{
                 println!("{}",res.battle_output());
             }
         }
-        println!("(For attacker)\n\
+        println!("Battle Type: {}\nResults(For attacker):\n\
         Decisive Victory:{}\n\
         Heroic Victory:{}\n\
         Close Victory:{}\n\
@@ -84,9 +82,17 @@ impl Config{
         Close Defeat:{}\n\
         Valiant Defeat:{}\n\
         Crushing Defeat:{}",
+                 match self.battle_type{
+                     None => String::from("Random"),
+                     Some(b) => b.get_name(),
+                 },
                  battle_outcomes[0], battle_outcomes[1], battle_outcomes[2],
                  battle_outcomes[3],
                  battle_outcomes[4], battle_outcomes[5], battle_outcomes[6]);
+
+        if self.save_data{
+            data.iter().map(|d| d.save_to_file()).for_each(drop);
+        }
     }
 
     /// Parse arguments from provided CLI command and return a new Config
@@ -100,13 +106,13 @@ impl Config{
             output_file_override: matches.value_of("output_file").map(|s| s.to_string()),
             run_count: matches.value_of("run_count").unwrap().parse().unwrap(),
             // use default values for initializing battle type, they can be altered later
-            battle_type: match matches.value_of("battle_type").unwrap() {
+            battle_type: matches.value_of("battle_type").map( |s| match s {
                 "2" => BattleType::Siege { rams: 0, catapults: 0, siege_towers: 0, defenses: TownStats::default(), },
                 "3" => BattleType::Raid { defenses: TownStats::default() },
                 "4" => BattleType::Naval {attacker_ships:0,defender_ships:0},
                 "5" => BattleType::Monster { monster: MonsterType::Minotaur },
                 "1" | _ => BattleType::Normal,
-            },
+            }),
             battle_file: matches.value_of("battle_file").map(|s| s.to_string()),
         }
     }
@@ -140,7 +146,7 @@ impl Config{
         let battle_type = Arg::with_name("battle_type")
             .short("b").long("battle")
             .help("Battle type to run. 1:Normal,2:Siege,3:Raid,4:Naval,5:Monster")
-            .value_name("TYPE").default_value("1");
+            .value_name("TYPE");
         // Arg for specifying a different unit/roster file to use
         let roster_file = Arg::with_name("roster_file")
             .short("u").long("unit")
@@ -191,7 +197,7 @@ mod cli_tests{
         assert!(!cfg.use_rand);
         assert!(!cfg.log);
         assert_eq!(cfg.run_count, 1);
-        assert_eq!(cfg.battle_type,BattleType::Normal);
+        assert_eq!(cfg.battle_type,None);
         assert_eq!(None,cfg.output_file_override);
         assert_eq!(None,cfg.battle_file);
     }
@@ -206,7 +212,7 @@ mod cli_tests{
         assert!(cfg.use_rand);
         assert!(cfg.log);
         assert_eq!(cfg.run_count, 2);
-        assert_eq!(cfg.battle_type,BattleType::Monster {monster:MonsterType::Minotaur});
+        assert_eq!(cfg.battle_type,Some(BattleType::Monster {monster:MonsterType::Minotaur}));
         assert_eq!(Some("test1".to_string()),cfg.output_file_override);
         assert_eq!(Some("test4".to_string()),cfg.battle_file);
 
