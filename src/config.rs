@@ -205,7 +205,7 @@ mod cli_tests{
     #[test]
     fn test_non_default_cli_options(){
         let app = Config::initialize_clap_app();
-        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","--unit","./ResourceFiles/units.csv","--treasure","./ResourceFiles/equipment.csv","-j","test4","-l"];
+        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","--unit","./ResourceFiles/units.csv","--treasure","./ResourceFiles/equipment.csv","-j","./ResourceFiles/normal_battle_template.json","-l"];
         let matches = app.get_matches_from(args);
         let cfg = Config::parse_app_arguments(&matches);
         assert!(cfg.save_data);
@@ -214,8 +214,9 @@ mod cli_tests{
         assert_eq!(cfg.run_count, 2);
         assert_eq!(cfg.battle_type,Some(BattleType::Monster {monster:MonsterType::Minotaur}));
         assert_eq!(Some("test1".to_string()),cfg.output_file_override);
-        assert_eq!(Some("test4".to_string()),cfg.battle_file);
+        assert_eq!(Some("./ResourceFiles/normal_battle_template.json".to_string()),cfg.battle_file);
 
     }
+
 }
 
