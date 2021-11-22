@@ -237,7 +237,7 @@ impl Battle{
     /// Determine if treasure is found by a given player
     fn find_treasure(&self, player : &Player, treasure : &Treasure) -> Option<Equipment>{
         let mut rng = rand::thread_rng();
-        let bonus = player.get_general().get_equipment(EquipmentType::Follower).get_bonus();
+        let bonus = player.get_general().get_equipment(EquipmentType::Follower).map(|e| e.get_bonus()).unwrap_or_else(|| 0);
         if rng.gen_range(1..9) + bonus >= 5{
             return Some(treasure.battle_find_equipment().clone());
         }
@@ -583,11 +583,11 @@ impl BattleData{
         // Attacker fields
         self.data[7] = battle.attacker.get_general().get_rank().to_string();
         self.data[8] = battle.attacker.get_general().get_bonus().to_string();
-        self.data[9] = battle.attacker.get_general().get_equipment(EquipmentType::Armor).get_bonus().to_string();
-        self.data[10] = battle.attacker.get_general().get_equipment(EquipmentType::Weapon).get_bonus().to_string();
-        self.data[11] = battle.attacker.get_general().get_equipment(EquipmentType::Follower).get_bonus().to_string();
-        self.data[12] = battle.attacker.get_general().get_equipment(EquipmentType::Banner).get_bonus().to_string();
-        self.data[13] = battle.attacker.get_general().get_equipment(EquipmentType::Trinket).get_bonus().to_string();
+        self.data[9] = battle.attacker.get_general().get_equipment(EquipmentType::Armor).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
+        self.data[10] = battle.attacker.get_general().get_equipment(EquipmentType::Weapon).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
+        self.data[11] = battle.attacker.get_general().get_equipment(EquipmentType::Follower).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
+        self.data[12] = battle.attacker.get_general().get_equipment(EquipmentType::Banner).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
+        self.data[13] = battle.attacker.get_general().get_equipment(EquipmentType::Trinket).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
         self.data[14] = battle.attacker.has_advanced_combat_deck().to_string();
         self.data[15] = (battle.attacker.get_melee_bonus() + battle.attacker.get_cavalry_bonus() + battle.attacker.get_ranged_bonus()).to_string();
         self.data[16] = battle.attacker.get_melee_bonus().to_string();
@@ -607,11 +607,11 @@ impl BattleData{
         // Defender fields
         self.data[75] = battle.defender.get_general().get_rank().to_string();
         self.data[76] = battle.defender.get_general().get_bonus().to_string();
-        self.data[77] = battle.defender.get_general().get_equipment(EquipmentType::Armor).get_bonus().to_string();
-        self.data[78] = battle.defender.get_general().get_equipment(EquipmentType::Weapon).get_bonus().to_string();
-        self.data[79] = battle.defender.get_general().get_equipment(EquipmentType::Follower).get_bonus().to_string();
-        self.data[80] = battle.defender.get_general().get_equipment(EquipmentType::Banner).get_bonus().to_string();
-        self.data[81] = battle.defender.get_general().get_equipment(EquipmentType::Trinket).get_bonus().to_string();
+        self.data[77] = battle.defender.get_general().get_equipment(EquipmentType::Armor).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
+        self.data[78] = battle.defender.get_general().get_equipment(EquipmentType::Weapon).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
+        self.data[79] = battle.defender.get_general().get_equipment(EquipmentType::Follower).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
+        self.data[80] = battle.defender.get_general().get_equipment(EquipmentType::Banner).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
+        self.data[81] = battle.defender.get_general().get_equipment(EquipmentType::Trinket).map(|e| e.get_bonus().to_string()).unwrap_or_else(|| String::from("0"));
         self.data[82] = battle.defender.has_advanced_combat_deck().to_string();
         self.data[83] = (battle.defender.get_melee_bonus() + battle.defender.get_cavalry_bonus() + battle.defender.get_ranged_bonus()).to_string();
         self.data[84] = battle.defender.get_melee_bonus().to_string();

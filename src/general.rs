@@ -7,30 +7,24 @@ use std::fs;
 #[derive(Debug)]
 pub struct General{
     state : GeneralState,
-    armor : Equipment,
-    weapon : Equipment,
-    banner : Equipment,
-    follower : Equipment,
-    trinket : Equipment,
+    armor : Option<Equipment>,
+    weapon : Option<Equipment>,
+    banner : Option<Equipment>,
+    follower : Option<Equipment>,
+    trinket : Option<Equipment>,
     rank : i32,
     bonus : i32,
 }
 
 impl Default for General{
     fn default() -> Self {
-        let armor = Equipment::default();
-        let weapon = Equipment::default();
-        let banner = Equipment::default();
-        let trinket = Equipment::default();
-        let follower = Equipment::default();
-
-        General::new(armor, weapon, banner, follower,trinket, 0)
+        General::new(None, None, None, None, None, 0)
     }
 }
 
 impl General{
-    pub fn new(armor :  Equipment, weapon : Equipment, banner: Equipment,
-    follower : Equipment, trinket : Equipment, rank : i32) -> Self{
+    pub fn new(armor :  Option<Equipment>, weapon : Option<Equipment>, banner: Option<Equipment>,
+               follower : Option<Equipment>, trinket : Option<Equipment>, rank : i32) -> Self{
         let mut g = General{
             state: GeneralState::Unharmed,
             armor: armor,
@@ -48,23 +42,23 @@ impl General{
     /// Set piece of equipment based on equipment type
     pub fn set_equipment(&mut self, item : Equipment){
         match item.equip_type(){
-            EquipmentType::Armor => self.armor = item,
-            EquipmentType::Weapon => self.weapon = item,
-            EquipmentType::Banner => self.banner = item,
-            EquipmentType::Trinket => self.trinket = item,
-            EquipmentType::Follower => self.follower = item,
+            EquipmentType::Armor => self.armor = Some(item),
+            EquipmentType::Weapon => self.weapon = Some(item),
+            EquipmentType::Banner => self.banner = Some(item),
+            EquipmentType::Trinket => self.trinket = Some(item),
+            EquipmentType::Follower => self.follower = Some(item),
         };
         self.update_bonus();
     }
 
     /// Get current piece of equipment based on type
-    pub fn get_equipment(&self, equip_type : EquipmentType) -> &Equipment{
+    pub fn get_equipment(&self, equip_type : EquipmentType) -> Option<&Equipment>{
         match equip_type{
-            EquipmentType::Armor => &self.armor,
-            EquipmentType::Weapon => &self.weapon,
-            EquipmentType::Banner => &self.banner,
-            EquipmentType::Trinket => &self.trinket,
-            EquipmentType::Follower => &self.follower,
+            EquipmentType::Armor => self.armor.as_ref().map(|e| e).or_else(|| None),
+            EquipmentType::Weapon => self.weapon.as_ref().map(|e| e).or_else(|| None),
+            EquipmentType::Banner => self.banner.as_ref().map(|e| e).or_else(|| None),
+            EquipmentType::Trinket => self.trinket.as_ref().map(|e| e).or_else(|| None),
+            EquipmentType::Follower => self.follower.as_ref().map(|e| e).or_else(|| None),
         }
     }
 
@@ -85,10 +79,11 @@ impl General{
 
     /// Update bonus based on equipment and rank
     fn update_bonus(&mut self){
-        self.bonus = self.armor.get_bonus() +
-            self.weapon.get_bonus() +
-            self.banner.get_bonus() +
-            self.trinket.get_bonus() +
+
+        self.bonus = self.armor.as_ref().map(|a| a.get_bonus()).unwrap_or_else(|| 0) +
+            self.weapon.as_ref().map(|a| a.get_bonus()).unwrap_or_else(|| 0) +
+            self.banner.as_ref().map(|a| a.get_bonus()).unwrap_or_else(|| 0) +
+            self.trinket.as_ref().map(|a| a.get_bonus()).unwrap_or_else(|| 0) +
             self.rank;
     }
 
@@ -103,20 +98,20 @@ impl General{
 
         General::new(
             match rng.gen_range(1..equipment_ratio+1) {
-            1 => treasure.get_item_by_type(EquipmentType::Armor).clone(),
-            _ => Equipment::default()
+            1 => Some(treasure.get_item_by_type(EquipmentType::Armor).clone()),
+            _ => None
         }, match rng.gen_range(1..equipment_ratio+1) {
-            1 => treasure.get_item_by_type(EquipmentType::Weapon).clone(),
-            _ => Equipment::default()
+            1 => Some(treasure.get_item_by_type(EquipmentType::Weapon).clone()),
+            _ => None
         }, match rng.gen_range(1..equipment_ratio+1) {
-            1 => treasure.get_item_by_type(EquipmentType::Banner).clone(),
-            _ => Equipment::default()
+            1 => Some(treasure.get_item_by_type(EquipmentType::Banner).clone()),
+            _ => None
         }, match rng.gen_range(1..equipment_ratio+1) {
-            1 => treasure.get_item_by_type(EquipmentType::Follower).clone(),
-            _ => Equipment::default()
+            1 => Some(treasure.get_item_by_type(EquipmentType::Follower).clone()),
+            _ => None
         }, match rng.gen_range(1..equipment_ratio+1) {
-            1 => treasure.get_item_by_type(EquipmentType::Trinket).clone(),
-            _ => Equipment::default()
+            1 => Some(treasure.get_item_by_type(EquipmentType::Trinket).clone()),
+            _ => None
         }, rng.gen_range(1..rank_cap+1) as i32
         )
     }
@@ -138,11 +133,11 @@ impl GeneralJSONObject{
     /// Produce General object from self
     pub fn produce_general(self, treasure: &Treasure) -> General{
         General::new(
-            Self::get_equipment(self.armor, treasure),
-            Self::get_equipment(self.weapon, treasure),
-            Self::get_equipment(self.banner, treasure),
-            Self::get_equipment(self.follower, treasure),
-            Self::get_equipment(self.trinket, treasure),
+            Some(Self::get_equipment(self.armor, treasure)),
+            Some(Self::get_equipment(self.weapon, treasure)),
+            Some(Self::get_equipment(self.banner, treasure)),
+            Some(Self::get_equipment(self.follower, treasure)),
+            Some(Self::get_equipment(self.trinket, treasure)),
             self.rank,
         )
     }
@@ -173,15 +168,15 @@ mod tests{
         let mut g = General::default();
 
         g.set_equipment(r.get_item_by_type(EquipmentType::Armor).clone());
-        assert_eq!(EquipmentType::Armor, *g.get_equipment(EquipmentType::Armor).equip_type());
+        assert_eq!(EquipmentType::Armor, *g.get_equipment(EquipmentType::Armor).unwrap().equip_type());
         g.set_equipment(r.get_item_by_type(EquipmentType::Weapon).clone());
-        assert_eq!(EquipmentType::Weapon, *g.get_equipment(EquipmentType::Weapon).equip_type());
+        assert_eq!(EquipmentType::Weapon, *g.get_equipment(EquipmentType::Weapon).unwrap().equip_type());
         g.set_equipment(r.get_item_by_type(EquipmentType::Banner).clone());
-        assert_eq!(EquipmentType::Banner, *g.get_equipment(EquipmentType::Banner).equip_type());
+        assert_eq!(EquipmentType::Banner, *g.get_equipment(EquipmentType::Banner).unwrap().equip_type());
         g.set_equipment(r.get_item_by_type(EquipmentType::Trinket).clone());
-        assert_eq!(EquipmentType::Trinket, *g.get_equipment(EquipmentType::Trinket).equip_type());
+        assert_eq!(EquipmentType::Trinket, *g.get_equipment(EquipmentType::Trinket).unwrap().equip_type());
         g.set_equipment(r.get_item_by_type(EquipmentType::Follower).clone());
-        assert_eq!(EquipmentType::Follower, *g.get_equipment(EquipmentType::Follower).equip_type());
+        assert_eq!(EquipmentType::Follower, *g.get_equipment(EquipmentType::Follower).unwrap().equip_type());
 
     }
 
