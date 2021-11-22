@@ -133,19 +133,19 @@ impl GeneralJSONObject{
     /// Produce General object from self
     pub fn produce_general(self, treasure: &Treasure) -> General{
         General::new(
-            Some(Self::get_equipment(self.armor, treasure)),
-            Some(Self::get_equipment(self.weapon, treasure)),
-            Some(Self::get_equipment(self.banner, treasure)),
-            Some(Self::get_equipment(self.follower, treasure)),
-            Some(Self::get_equipment(self.trinket, treasure)),
+            Self::get_equipment(self.armor, treasure),
+            Self::get_equipment(self.weapon, treasure),
+            Self::get_equipment(self.banner, treasure),
+            Self::get_equipment(self.follower, treasure),
+            Self::get_equipment(self.trinket, treasure),
             self.rank,
         )
     }
-    fn get_equipment( id : i32, treasure : &Treasure) -> Equipment{
-        if id < 0 {
-            Equipment::default()
+    fn get_equipment( id : i32, treasure : &Treasure) -> Option<Equipment>{
+        if id <= 0 {
+            None
         }else{
-            treasure.get_item_by_id(id).clone()
+            treasure.get_item_by_id(id).map(|e| e.clone())
         }
     }
 }

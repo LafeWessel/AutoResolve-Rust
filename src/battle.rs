@@ -995,3 +995,67 @@ mod battle_data_tests{
         fs::remove_file(Path::new(&b.output_location));
     }
 }
+
+#[cfg(test)]
+mod test_battle_json{
+    use crate::battle::{BattleJSONObject, BattleType};
+    use crate::roster::Roster;
+    use crate::treasure::Treasure;
+    use crate::faction::Faction;
+    use crate::equipment::EquipmentType;
+
+    #[test]
+    fn normal_deserialize(){
+        let r = Roster::new(None);
+        let t = Treasure::new(None);
+        let b = BattleJSONObject::from_json("./ResourceFiles/normal_battle_template.json").produce_battle(&r, &t);
+
+        assert_eq!(BattleType::Normal, b.battle_type);
+
+        // attacker
+        assert_eq!(None, b.attacker.get_general().get_equipment(EquipmentType::Armor));
+        assert_eq!(10, b.attacker.get_general().get_equipment(EquipmentType::Weapon).unwrap().get_id());
+        assert_eq!(28, b.attacker.get_general().get_equipment(EquipmentType::Banner).unwrap().get_id());
+        assert_eq!(None, b.attacker.get_general().get_equipment(EquipmentType::Follower));
+        assert_eq!(19, b.attacker.get_general().get_equipment(EquipmentType::Trinket).unwrap().get_id());
+        assert_eq!(3, b.attacker.get_units().len());
+        assert_eq!(1, b.attacker.get_reinforcements());
+        assert_eq!(false, b.attacker.has_advanced_combat_deck());
+        assert_eq!(Faction::Beladimir, *b.attacker.get_faction());
+
+        // defender
+        assert_eq!(None, b.defender.get_general().get_equipment(EquipmentType::Armor));
+        assert_eq!(10, b.defender.get_general().get_equipment(EquipmentType::Weapon).unwrap().get_id());
+        assert_eq!(28, b.defender.get_general().get_equipment(EquipmentType::Banner).unwrap().get_id());
+        assert_eq!(37, b.defender.get_general().get_equipment(EquipmentType::Follower).unwrap().get_id());
+        assert_eq!(19, b.defender.get_general().get_equipment(EquipmentType::Trinket).unwrap().get_id());
+        assert_eq!(5, b.defender.get_units().len());
+        assert_eq!(0, b.defender.get_reinforcements());
+        assert_eq!(true, b.defender.has_advanced_combat_deck());
+        assert_eq!(Faction::Menoriad, *b.defender.get_faction());
+    }
+
+    #[test]
+    fn siege_deserialize(){
+
+    }
+
+    #[test]
+    fn raid_deserialize(){
+
+    }
+
+    #[test]
+    fn naval_deserialize(){
+
+    }
+
+    #[test]
+    fn monster_deserialize(){
+
+    }
+
+
+
+
+}

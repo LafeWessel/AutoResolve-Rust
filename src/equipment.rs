@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct Equipment{
     equipment_type : EquipmentType,
     name : String,
