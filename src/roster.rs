@@ -37,7 +37,7 @@ impl Roster{
         let values : Vec<&str> = line.split(",").collect();
         // println!("{:?}", values);
         Unit::new(
-            values[0].trim().parse().unwrap(),
+            values[0].trim(),
             values[1].trim().parse().unwrap(),
             values[2].trim(),
             values[3].trim().parse().unwrap(),
