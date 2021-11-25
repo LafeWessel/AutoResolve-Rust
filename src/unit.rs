@@ -13,13 +13,13 @@ pub struct Unit{
 
 impl Default for Unit{
     fn default() -> Self {
-        Unit::new(1,String::new(),1,0,0, 0)
+        Unit::new(1,String::new(),"melee",0,0, 0)
     }    
 }
 
 
 impl Unit{
-    pub fn new(faction_int : u32, name: String, unit_type_int:u32, bonus : i32, size: i32, id: u32) -> Self{
+    pub fn new(faction_int : u32, name: String, unit_type_str: &str, bonus : i32, size: i32, id: u32) -> Self{
         Unit{
             faction :  match faction_int{
                 1 => Faction::Rebel,
@@ -29,11 +29,11 @@ impl Unit{
                 _ => panic!("Invalid integer to Faction {}!",faction_int)
             },
             name: name,
-            unit_type: match unit_type_int{
-                1 => UnitType::Melee,
-                2 => UnitType::Cavalry,
-                3 => UnitType::Ranged,
-                _ => panic!("Invalid integer to UnitType: {}", unit_type_int)
+            unit_type: match unit_type_str.to_lowercase().as_ref(){
+                "melee" => UnitType::Melee,
+                "cavalry" => UnitType::Cavalry,
+                "ranged" => UnitType::Ranged,
+                _ => panic!("Invalid string to UnitType: {}", unit_type_str)
             },
             autoresolve_bonus: bonus,
             unit_size: size,

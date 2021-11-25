@@ -1,39 +1,39 @@
 Faction,Name,Type,Autoresolve Bonus,Unit Size,id
-1,Rebel Rivermen Mercenaries,1,4,4,1
-1,Rebel Rangers of the Forests,3,6,4,2
-1,Rebel Courier Riders,2,3,3,3
-1,Rebel Mountain Men,1,4,4,4
-1,Rebel Axemen of the Vale,1,6,4,5
-1,Rebel Vale Cavalry,2,4,3,6
-1,Rebel Light Woodmen,1,4,4,7
-1,Rebel Woodsmen Archers,3,4,4,8
-1,Rebel Riders of the Wood,2,3,3,9
-2,Light Woodmen,1,4,4,10
-2,Guards of Beladimir,1,5,4,11
-2,Beladimir Spearmen,1,6,4,12
-2,Woodsmen Archers,3,4,4,13
-2,Archers of Beladimir,3,5,4,14
-2,Coastal Guards,3,4,4,15
-2,Riders of the Wood,2,3,3,16
-2,Beladimir Cavalry,2,6,3,17
-2,Plains Cavalry,2,5,3,18
-3,Mountain Men,1,4,4,19
-3,Lerastir Shieldbearers,1,6,4,20
-3,Lerastir Spears,1,5,4,21
-3,Pikes of Lerastir,1,5,4,22
-3,Axemen of the Vale,1,6,4,23
-3,Bowmen of Lerastir,3,4,4,24
-3,Crossbowmen of the South,3,6,4,25
-3,Vale Cavalry,2,4,3,26
-3,Territory Guardsmen,1,3,4,27
-3,Lerastir Palace Cavalry,2,6,3,28
-4,Shieldmaidens of the North,1,6,4,29
-4,Menoriad Spearmen,1,5,4,30
-4,Axemen of the Wastes,1,4,4,31
-4,Menoriad Archers,3,4,4,32
-4,Rangers of the Forests,3,6,4,33
-4,Courier Riders,2,3,3,34
-4,Menoriad Cavalry,2,4,3,35
-4,Royal Cavalry,2,6,3,36
-4,Hunters of the North,3,5,4,37
-4,Rivermen Mercenaries,1,4,4,38
+1,Rebel Rivermen Mercenaries,Melee,4,4,1
+1,Rebel Rangers of the Forests,Ranged,6,4,2
+1,Rebel Courier Riders,Cavalry,3,3,3
+1,Rebel Mountain Men,Melee,4,4,4
+1,Rebel Axemen of the Vale,Melee,6,4,5
+1,Rebel Vale Cavalry,Cavalry,4,3,6
+1,Rebel Light Woodmen,Melee,4,4,7
+1,Rebel Woodsmen Archers,Ranged,4,4,8
+1,Rebel Riders of the Wood,Cavalry,3,3,9
+2,Light Woodmen,Melee,4,4,10
+2,Guards of Beladimir,Melee,5,4,11
+2,Beladimir Spearmen,Melee,6,4,12
+2,Woodsmen Archers,Ranged,4,4,13
+2,Archers of Beladimir,Ranged,5,4,14
+2,Coastal Guards,Ranged,4,4,15
+2,Riders of the Wood,Cavalry,3,3,16
+2,Beladimir Cavalry,Cavalry,6,3,17
+2,Plains Cavalry,Cavalry,5,3,18
+3,Mountain Men,Melee,4,4,19
+3,Lerastir Shieldbearers,Melee,6,4,20
+3,Lerastir Spears,Melee,5,4,21
+3,Pikes of Lerastir,Melee,5,4,22
+3,Axemen of the Vale,Melee,6,4,23
+3,Bowmen of Lerastir,Ranged,4,4,24
+3,Crossbowmen of the South,Ranged,6,4,25
+3,Vale Cavalry,Cavalry,4,3,26
+3,Territory Guardsmen,Melee,3,4,27
+3,Lerastir Palace Cavalry,Cavalry,6,3,28
+4,Shieldmaidens of the North,Melee,6,4,29
+4,Menoriad Spearmen,Melee,5,4,30
+4,Axemen of the Wastes,Melee,4,4,31
+4,Menoriad Archers,Ranged,4,4,32
+4,Rangers of the Forests,Ranged,6,4,33
+4,Courier Riders,Cavalry,3,3,34
+4,Menoriad Cavalry,Cavalry,4,3,35
+4,Royal Cavalry,Cavalry,6,3,36
+4,Hunters of the North,Ranged,5,4,37
+4,Rivermen Mercenaries,Melee,4,4,38
