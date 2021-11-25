@@ -123,7 +123,8 @@ impl Config{
         // Arg for running randomly generated battles
         let rand = Arg::with_name("random")
             .short("r").long("random")
-            .help("Run randomly generated data");
+            .help("Run randomly generated data")
+            .conflicts_with("battle_file");
         // Arg for saving battle runs to file
         let save = Arg::with_name("save")
             .short("s").long("save")
@@ -146,7 +147,8 @@ impl Config{
         let battle_type = Arg::with_name("battle_type")
             .short("b").long("battle")
             .help("Battle type to run. 1:Normal,2:Siege,3:Raid,4:Naval,5:Monster")
-            .value_name("TYPE");
+            .value_name("TYPE")
+            .conflicts_with("battle_file");
         // Arg for specifying a different unit/roster file to use
         let roster_file = Arg::with_name("roster_file")
             .long("unit")
@@ -161,7 +163,8 @@ impl Config{
         let battle_file = Arg::with_name("battle_file")
             .short("j").long("json")
             .help("Battle JSON file to read and run.")
-            .value_name("FILE");
+            .value_name("FILE")
+            .conflicts_with_all(&["random","battle_type"]);
 
         // Create and return new App
         App::new("Autoresolve")
@@ -205,7 +208,7 @@ mod cli_tests{
     #[test]
     fn test_non_default_cli_options(){
         let app = Config::initialize_clap_app();
-        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","--unit","./ResourceFiles/units.csv","--treasure","./ResourceFiles/equipment.csv","-j","./ResourceFiles/normal_battle_template.json","-l"];
+        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","--unit","./ResourceFiles/units.csv","--treasure","./ResourceFiles/equipment.csv","-l"];
         let matches = app.get_matches_from(args);
         let cfg = Config::parse_app_arguments(&matches);
         assert!(cfg.save_data);
@@ -214,8 +217,16 @@ mod cli_tests{
         assert_eq!(cfg.run_count, 2);
         assert_eq!(cfg.battle_type,Some(BattleType::Monster {monster:MonsterType::Minotaur}));
         assert_eq!(Some("test1".to_string()),cfg.output_file_override);
-        assert_eq!(Some("./ResourceFiles/normal_battle_template.json".to_string()),cfg.battle_file);
+        assert_eq!(None,cfg.battle_file);
+    }
 
+    #[test]
+    fn test_json_template(){
+        let app = Config::initialize_clap_app();
+        let args = vec!["","--json","./ResourceFiles/normal_battle_template.json"];
+        let matches = app.get_matches_from(args);
+        let cfg = Config::parse_app_arguments(&matches);
+        assert_eq!(Some("./ResourceFiles/normal_battle_template.json".to_string()),cfg.battle_file);
     }
 
 }
