@@ -37,6 +37,11 @@ impl Config{
         let mut battle_outcomes : [i32;7] = [0;7];
         let mut data : Vec<BattleData>  = vec![];
 
+        let mut b_type = match self.battle_type{
+            None => BattleType::Normal,
+            Some(b) => b
+        };
+
         // run run_count battles
         for i in 1..=self.run_count {
             // run battles
@@ -48,7 +53,11 @@ impl Config{
 
             // create Battle and run
             let mut b = match &self.battle_file {
-                Some(s) => BattleJSONObject::from_json(s).produce_battle(&self.roster, &self.treasure),
+                Some(s) => {
+                    let b = BattleJSONObject::from_json(s).produce_battle(&self.roster, &self.treasure);
+                    b_type = b.get_battle_type();
+                    b
+                },
                 None => if self.use_rand {
                     Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5, self.battle_type)
                 } else {
@@ -82,10 +91,7 @@ impl Config{
         Close Defeat:{}\n\
         Valiant Defeat:{}\n\
         Crushing Defeat:{}",
-                 match self.battle_type{
-                     None => String::from("Random"),
-                     Some(b) => b.get_name(),
-                 },
+                 if self.use_rand {String::from("Random")} else {b_type.get_name()},
                  battle_outcomes[0], battle_outcomes[1], battle_outcomes[2],
                  battle_outcomes[3],
                  battle_outcomes[4], battle_outcomes[5], battle_outcomes[6]);

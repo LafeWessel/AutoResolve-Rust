@@ -275,6 +275,12 @@ impl Battle{
         }
     }
 
+    /// Get Battle type
+    pub fn get_battle_type(&self) -> BattleType{
+        self.battle_type
+    }
+
+
 }
 
 #[derive(Debug)]
