@@ -21,7 +21,7 @@ The 'Corpse Thief' Follower equipment has 1 as it's autoresolve bonus to help ca
 ### units.csv
 
 Order of Variables in `units.csv` file:
-1. Faction: Rebel (1), Beladimir (2), Lerastir (3), Menoriad (4) (`int`)
+1. Faction: Rebel, Beladimir, Lerastir, Menoriad (`String`)
 2. Name (`String`)
 3. Type: Melee, Cavalry, or Ranged (`String`)
 4. Autoresolve Bonus (`int`)
