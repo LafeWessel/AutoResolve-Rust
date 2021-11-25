@@ -3,6 +3,49 @@ My AutoResolve program implemented in Rust.
 
 Performs same functionality as AutoResolve2.0
 
+## CLI Flags
+
+### `-b`/`--battle`
+
+Specify which type of battle to run. 
+- 1: Normal
+- 2: Siege
+- 3: Raid
+- 4: Naval
+- 5: Monster
+
+### `-c`/`--count`
+
+Number of battle calculations to perform.
+
+### `-h`/`--help`
+
+Display help information
+
+### `-j`/`--json`
+
+JSON file to read and parse to battle. Mutually exclusive with `r`/`--random` and `-b`/`--battle`.
+
+### `-l`/`--log`
+
+Display results from each battle run
+
+### `-r`/`--random`
+
+Use randomly generated data for battle runs. Mutually exclusive with `-j`/`--json`.
+
+### `-s`/`--save`
+
+Save battle results to `.csv` file. Can override default save location with `-f`/`--file`.
+
+### `--treasure`
+
+Override default file for reading in treasure data
+
+### `--unit`
+
+Override default file for reading in unit data
+
 ## Resource Files
 
 ### equipment.csv
