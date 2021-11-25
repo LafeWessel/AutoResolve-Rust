@@ -1,39 +1,39 @@
 Faction,Name,Type,Autoresolve Bonus,Unit Size,id
-1,Rebel Rivermen Mercenaries,Melee,4,4,1
-1,Rebel Rangers of the Forests,Ranged,6,4,2
-1,Rebel Courier Riders,Cavalry,3,3,3
-1,Rebel Mountain Men,Melee,4,4,4
-1,Rebel Axemen of the Vale,Melee,6,4,5
-1,Rebel Vale Cavalry,Cavalry,4,3,6
-1,Rebel Light Woodmen,Melee,4,4,7
-1,Rebel Woodsmen Archers,Ranged,4,4,8
-1,Rebel Riders of the Wood,Cavalry,3,3,9
-2,Light Woodmen,Melee,4,4,10
-2,Guards of Beladimir,Melee,5,4,11
-2,Beladimir Spearmen,Melee,6,4,12
-2,Woodsmen Archers,Ranged,4,4,13
-2,Archers of Beladimir,Ranged,5,4,14
-2,Coastal Guards,Ranged,4,4,15
-2,Riders of the Wood,Cavalry,3,3,16
-2,Beladimir Cavalry,Cavalry,6,3,17
-2,Plains Cavalry,Cavalry,5,3,18
-3,Mountain Men,Melee,4,4,19
-3,Lerastir Shieldbearers,Melee,6,4,20
-3,Lerastir Spears,Melee,5,4,21
-3,Pikes of Lerastir,Melee,5,4,22
-3,Axemen of the Vale,Melee,6,4,23
-3,Bowmen of Lerastir,Ranged,4,4,24
-3,Crossbowmen of the South,Ranged,6,4,25
-3,Vale Cavalry,Cavalry,4,3,26
-3,Territory Guardsmen,Melee,3,4,27
-3,Lerastir Palace Cavalry,Cavalry,6,3,28
-4,Shieldmaidens of the North,Melee,6,4,29
-4,Menoriad Spearmen,Melee,5,4,30
-4,Axemen of the Wastes,Melee,4,4,31
-4,Menoriad Archers,Ranged,4,4,32
-4,Rangers of the Forests,Ranged,6,4,33
-4,Courier Riders,Cavalry,3,3,34
-4,Menoriad Cavalry,Cavalry,4,3,35
-4,Royal Cavalry,Cavalry,6,3,36
-4,Hunters of the North,Ranged,5,4,37
-4,Rivermen Mercenaries,Melee,4,4,38
+Rebel,Rebel Rivermen Mercenaries,Melee,4,4,1
+Rebel,Rebel Rangers of the Forests,Ranged,6,4,2
+Rebel,Rebel Courier Riders,Cavalry,3,3,3
+Rebel,Rebel Mountain Men,Melee,4,4,4
+Rebel,Rebel Axemen of the Vale,Melee,6,4,5
+Rebel,Rebel Vale Cavalry,Cavalry,4,3,6
+Rebel,Rebel Light Woodmen,Melee,4,4,7
+Rebel,Rebel Woodsmen Archers,Ranged,4,4,8
+Rebel,Rebel Riders of the Wood,Cavalry,3,3,9
+Beladimir,Light Woodmen,Melee,4,4,10
+Beladimir,Guards of Beladimir,Melee,5,4,11
+Beladimir,Beladimir Spearmen,Melee,6,4,12
+Beladimir,Woodsmen Archers,Ranged,4,4,13
+Beladimir,Archers of Beladimir,Ranged,5,4,14
+Beladimir,Coastal Guards,Ranged,4,4,15
+Beladimir,Riders of the Wood,Cavalry,3,3,16
+Beladimir,Beladimir Cavalry,Cavalry,6,3,17
+Beladimir,Plains Cavalry,Cavalry,5,3,18
+Lerastir,Mountain Men,Melee,4,4,19
+Lerastir,Lerastir Shieldbearers,Melee,6,4,20
+Lerastir,Lerastir Spears,Melee,5,4,21
+Lerastir,Pikes of Lerastir,Melee,5,4,22
+Lerastir,Axemen of the Vale,Melee,6,4,23
+Lerastir,Bowmen of Lerastir,Ranged,4,4,24
+Lerastir,Crossbowmen of the South,Ranged,6,4,25
+Lerastir,Vale Cavalry,Cavalry,4,3,26
+Lerastir,Territory Guardsmen,Melee,3,4,27
+Lerastir,Lerastir Palace Cavalry,Cavalry,6,3,28
+Menoriad,Shieldmaidens of the North,Melee,6,4,29
+Menoriad,Menoriad Spearmen,Melee,5,4,30
+Menoriad,Axemen of the Wastes,Melee,4,4,31
+Menoriad,Menoriad Archers,Ranged,4,4,32
+Menoriad,Rangers of the Forests,Ranged,6,4,33
+Menoriad,Courier Riders,Cavalry,3,3,34
+Menoriad,Menoriad Cavalry,Cavalry,4,3,35
+Menoriad,Royal Cavalry,Cavalry,6,3,36
+Menoriad,Hunters of the North,Ranged,5,4,37
+Menoriad,Rivermen Mercenaries,Melee,4,4,38
