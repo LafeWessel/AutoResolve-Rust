@@ -191,7 +191,7 @@ mod tests{
     #[test]
     fn test_soldier_count(){
         let g = General::default();
-        let u = Unit::new(1,String::new(),1,0,10,0);
+        let u = Unit::new(1,String::new(),"melee",0,10,0);
         let p = Player::new(vec![u.clone()],g);
 
         assert_eq!(u.get_size(),p.get_soldier_count());
@@ -201,7 +201,7 @@ mod tests{
     fn test_calculate_bonuses(){
         // Melee
         let g = General::default();
-        let u = Unit::new(1,String::new(),1,10,0,0);
+        let u = Unit::new(1,String::new(),"Melee",10,0,0);
         let p = Player::new(vec![u.clone()], g);
         assert_eq!(p.melee_bonus, u.get_bonus());
         assert_eq!(p.cavalry_bonus, 0);
@@ -209,7 +209,7 @@ mod tests{
 
         // Cavalry
         let g = General::default();
-        let u = Unit::new(1,String::new(),2,10,0,0);
+        let u = Unit::new(1,String::new(),"Cavalry",10,0,0);
         let p = Player::new(vec![u.clone()], g);
         assert_eq!(p.cavalry_bonus, u.get_bonus());
         assert_eq!(p.melee_bonus, 0);
@@ -217,7 +217,7 @@ mod tests{
 
         // Ranged
         let g = General::default();
-        let u = Unit::new(1,String::new(),3,10,0,0);
+        let u = Unit::new(1,String::new(),"Ranged",10,0,0);
         let p = Player::new(vec![u.clone()], g);
         assert_eq!(p.ranged_bonus, u.get_bonus());
         assert_eq!(p.cavalry_bonus, 0);
@@ -246,9 +246,9 @@ mod tests{
     #[test]
     fn test_get_unit_count_by_name(){
         let g = General::default();
-        let u1 = Unit::new(1,String::from("test1"),2,10,0,0);
-        let u2 = Unit::new(1,String::from("test1"),2,10,0,0);
-        let u3 = Unit::new(1,String::from("test2"),2,10,0,0);
+        let u1 = Unit::new(1,String::from("test1"),"Cavalry",10,0,0);
+        let u2 = Unit::new(1,String::from("test1"),"Cavalry",10,0,0);
+        let u3 = Unit::new(1,String::from("test2"),"Cavalry",10,0,0);
         let p = Player::new(vec![u1,u2,u3], g);
 
         assert_eq!(2,p.get_unit_count_by_name("test1"));

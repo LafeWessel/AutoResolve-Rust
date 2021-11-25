@@ -39,7 +39,7 @@ impl Roster{
         Unit::new(
             values[0].trim().parse().unwrap(),
             values[1].trim().parse().unwrap(),
-            values[2].trim().parse().unwrap(),
+            values[2].trim(),
             values[3].trim().parse().unwrap(),
             values[4].trim().parse().unwrap(),
             values[5].trim().parse().unwrap()
