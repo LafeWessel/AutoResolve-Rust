@@ -570,6 +570,12 @@ impl BattleData{
         }
     }
 
+    pub fn get_save_location(&self) -> &String{
+        &self.output_location
+    }
+
+
+
     /// Save initial battle data before running autoresolve
     fn collect_initial_battle_data(&mut self, battle : &Battle){
         // set output location

@@ -5,6 +5,7 @@ use crate::monster::MonsterType;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
 use crate::player::Player;
+use std::io::BufWriter;
 
 
 pub struct Config {
@@ -49,7 +50,13 @@ impl Config{
                 println!("Run {}", i);
             }
 
-            data.push(BattleData::new(&self.roster, &self.output_file_override));
+            // If using random data, ensure that it goes to the random_data.csv file
+            let output_file = match self.use_rand{
+                true => Some(String::from("./DataCapture/random_data.csv")),
+                false => self.output_file_override.clone()
+            };
+
+            data.push(BattleData::new(&self.roster, &output_file));
 
             // create Battle and run
             let mut b = match &self.battle_file {
@@ -95,6 +102,10 @@ impl Config{
                  battle_outcomes[0], battle_outcomes[1], battle_outcomes[2],
                  battle_outcomes[3],
                  battle_outcomes[4], battle_outcomes[5], battle_outcomes[6]);
+
+
+        // create BufWriter and write to file
+        let writer =  BufWriter::new(data[0].);
 
         if self.save_data{
             data.iter().map(|d| d.save_to_file()).for_each(drop);
