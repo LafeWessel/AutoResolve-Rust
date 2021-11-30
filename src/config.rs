@@ -5,6 +5,10 @@ use crate::monster::MonsterType;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
 use crate::player::Player;
+use std::io::{BufWriter, Write};
+use std::path::Path;
+use std::fs;
+use std::fs::OpenOptions;
 
 
 pub struct Config {
@@ -49,7 +53,16 @@ impl Config{
                 println!("Run {}", i);
             }
 
-            data.push(BattleData::new(&self.roster, &self.output_file_override));
+            // If using random data, ensure that it goes to the random_data.csv file
+            let output_file = match self.use_rand{
+                true => match self.battle_type {
+                    None => Some(String::from("./DataCapture/random_data.csv")),
+                    Some(b) => None
+                }
+                false => self.output_file_override.clone()
+            };
+
+            data.push(BattleData::new(&self.roster, &output_file));
 
             // create Battle and run
             let mut b = match &self.battle_file {
@@ -91,13 +104,29 @@ impl Config{
         Close Defeat:{}\n\
         Valiant Defeat:{}\n\
         Crushing Defeat:{}",
-                 if self.use_rand {String::from("Random")} else {b_type.get_name()},
+                 if (self.use_rand) && (self.battle_type == None) {String::from("Random")} else {b_type.get_name()},
                  battle_outcomes[0], battle_outcomes[1], battle_outcomes[2],
                  battle_outcomes[3],
                  battle_outcomes[4], battle_outcomes[5], battle_outcomes[6]);
 
+
+        // create BufWriter and write to file
         if self.save_data{
-            data.iter().map(|d| d.save_to_file()).for_each(drop);
+
+            let loc = data[0].get_save_location();
+
+            let file_path = Path::new(&loc);
+            // If output file doesn't exist, create by copying template
+            if !Path::exists(file_path){
+                println!("Creating output file at {} for battle data",loc);
+                fs::copy("./ResourceFiles/data_capture_template.txt", &loc).unwrap();
+            }
+
+            // Write lines to file
+            let mut f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
+
+            let mut writer =  BufWriter::new(f);
+            data.iter().map(|d| writeln!(writer,"{}",d.format_output())).for_each(drop);
         }
     }
 

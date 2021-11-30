@@ -570,6 +570,12 @@ impl BattleData{
         }
     }
 
+    pub fn get_save_location(&self) -> &String{
+        &self.output_location
+    }
+
+
+
     /// Save initial battle data before running autoresolve
     fn collect_initial_battle_data(&mut self, battle : &Battle){
         // set output location
@@ -744,6 +750,26 @@ impl BattleData{
         write!(f,"\n");
         true
     }
+
+    /// Format output line
+    pub fn format_output(&self) -> String{
+        if !self.got_calculations || !self.got_results || !self.got_initial{
+            println!("Unable to write because not all data yet set\n\t\
+            Initial:{}\n\tRandoms:{}\n\tResults:{}"
+                     ,self.got_initial,self.got_calculations,self.got_results);
+            panic!();
+        }
+        let mut s = String::new();
+
+        // Write each data entry, write the first before to ensure proper comma alignment
+        s.push_str(format!("{}",self.data[0]).as_str());
+        for line in self.data.iter().skip(1){
+            // Write each cell, separating with commas
+            s.push_str((format!(",{}",line).as_str()));
+        }
+        s
+    }
+
 
 }
 
