@@ -5,7 +5,10 @@ use crate::monster::MonsterType;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
 use crate::player::Player;
-use std::io::BufWriter;
+use std::io::{BufWriter, Write};
+use std::path::Path;
+use std::fs;
+use std::fs::OpenOptions;
 
 
 pub struct Config {
@@ -105,10 +108,22 @@ impl Config{
 
 
         // create BufWriter and write to file
-        let writer =  BufWriter::new(data[0].);
-
         if self.save_data{
-            data.iter().map(|d| d.save_to_file()).for_each(drop);
+
+            let loc = data[0].get_save_location();
+
+            let file_path = Path::new(&loc);
+            // If output file doesn't exist, create by copying template
+            if !Path::exists(file_path){
+                println!("Creating output file at {} for battle data",loc);
+                fs::copy("./ResourceFiles/data_capture_template.txt", &loc).unwrap();
+            }
+
+            // Write lines to file
+            let mut f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
+
+            let mut writer =  BufWriter::new(f);
+            data.iter().map(|d| writeln!(writer,"{}",d.format_output())).for_each(drop);
         }
     }
 
