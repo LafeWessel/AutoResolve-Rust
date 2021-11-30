@@ -55,7 +55,10 @@ impl Config{
 
             // If using random data, ensure that it goes to the random_data.csv file
             let output_file = match self.use_rand{
-                true => Some(String::from("./DataCapture/random_data.csv")),
+                true => match self.battle_type {
+                    None => Some(String::from("./DataCapture/random_data.csv")),
+                    Some(b) => None
+                }
                 false => self.output_file_override.clone()
             };
 
@@ -101,7 +104,7 @@ impl Config{
         Close Defeat:{}\n\
         Valiant Defeat:{}\n\
         Crushing Defeat:{}",
-                 if self.use_rand {String::from("Random")} else {b_type.get_name()},
+                 if (self.use_rand) && (self.battle_type == None) {String::from("Random")} else {b_type.get_name()},
                  battle_outcomes[0], battle_outcomes[1], battle_outcomes[2],
                  battle_outcomes[3],
                  battle_outcomes[4], battle_outcomes[5], battle_outcomes[6]);
