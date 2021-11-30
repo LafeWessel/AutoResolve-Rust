@@ -765,7 +765,7 @@ impl BattleData{
         s.push_str(format!("{}",self.data[0]).as_str());
         for line in self.data.iter().skip(1){
             // Write each cell, separating with commas
-            s.push_str((format!("{}",line).as_str()));
+            s.push_str((format!(",{}",line).as_str()));
         }
         s
     }
