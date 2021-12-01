@@ -44,6 +44,18 @@ impl Config{
         // Use Normal battle if none specified
         let mut b_type= self.battle_type.unwrap_or_else(|| BattleType::Normal);
 
+        // create Battle
+        let b = match &self.battle_file {
+            // using a JSON battle
+            Some(s) => {
+                let b = BattleJSONObject::from_json(s).produce_battle(&self.roster, &self.treasure);
+                b_type = b.get_battle_type();
+                b
+            },
+            // not using JSON
+            None => Battle::new(Player::default(), Player::default(), b_type)
+        };
+
         // run run_count battles
         for i in 1..=self.run_count {
             // run battles
@@ -51,29 +63,18 @@ impl Config{
                 println!("Run {}", i);
             }
 
-
-            // create Battle and run
-            let mut b = match &self.battle_file {
-                // using a JSON battle
-                Some(s) => {
-                    let b = BattleJSONObject::from_json(s).produce_battle(&self.roster, &self.treasure);
-                    b_type = b.get_battle_type();
-                    b
-                },
-                // not using JSON
-                None => if self.use_rand {
-                    // using randomly generated data
-                    Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5, self.battle_type)
-                } else {
-                    // using default data
-                    Battle::new(Player::default(), Player::default(), b_type)
-                }
+            // create temporary Battle to use
+            let mut temp = if self.use_rand {
+                Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5, self.battle_type)
+            }else{
+                b.clone()
             };
 
             // create new BattleData and run
             data.push(BattleData::new(&self.roster));
-            let res = b.autoresolve(&self.treasure, &mut data[(i-1) as usize]);
+            let res = temp.autoresolve(&self.treasure, &mut data[(i-1) as usize]);
 
+            // save outcome data
             match data[(i-1) as usize].get_outcome(){
                 BattleOutcome::DecisiveVictory => battle_outcomes[0] += 1,
                 BattleOutcome::HeroicVictory => battle_outcomes[1] += 1,
@@ -102,33 +103,39 @@ impl Config{
                  battle_outcomes[3],
                  battle_outcomes[4], battle_outcomes[5], battle_outcomes[6]);
 
-
-        // create BufWriter and write to file
-        if self.save_data{
-            // Determine what the output file should be
-            let output_file : String = match &self.output_file_override{
-                // use default
-                None => String::from(format!("./DataCapture/{}",b_type.get_data_path())),
-                // override default
-                Some(s) => s.clone()
-            };
-            print!("Saving results to file {}...", output_file);
-
-            let file_path = Path::new(&output_file);
-            // If output file doesn't exist, create by copying template
-            if !Path::exists(file_path){
-                println!("\nCreated output file at {} for battle data",output_file);
-                fs::copy("./ResourceFiles/data_capture_template.txt", &output_file).unwrap();
-            }
-
-            // Open output file
-            let mut f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
-
-            // Write lines to file
-            let mut writer = BufWriter::new(f);
-            data.iter().map(|d| writeln!(writer,"{}",d.format_output())).for_each(drop);
-            println!("Done");
+        // save data to file
+        if self.save_data {
+            self.save_run_results(&mut data, b_type)
         }
+    }
+
+    /// Save set of run results to file
+    fn save_run_results(&self, data: &Vec<BattleData>, b_type: BattleType) {
+        // create BufWriter and write to file
+
+        // Determine what the output file should be
+        let output_file: String = match &self.output_file_override {
+            // use default
+            None => String::from(format!("./DataCapture/{}", b_type.get_data_path())),
+            // override default
+            Some(s) => s.clone()
+        };
+        print!("Saving results to file {}...", output_file);
+
+        let file_path = Path::new(&output_file);
+        // If output file doesn't exist, create by copying template
+        if !Path::exists(file_path) {
+            println!("\nCreated output file at {} for battle data", output_file);
+            fs::copy("./ResourceFiles/data_capture_template.txt", &output_file).unwrap();
+        }
+
+        // Open output file
+        let mut f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
+
+        // Write lines to file
+        let mut writer = BufWriter::new(f);
+        data.iter().map(|d| writeln!(writer, "{}", d.format_output())).for_each(drop);
+        println!("Done");
     }
 
     /// Parse arguments from provided CLI command and return a new Config
