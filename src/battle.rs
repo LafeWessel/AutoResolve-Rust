@@ -21,7 +21,7 @@ pub struct Battle{
 
 impl Battle{
 
-    pub fn new(attacker : Player, defender: Player, battle_type : BattleType,  roster : &Roster, output_file : &Option<String>) -> Self{
+    pub fn new(attacker : Player, defender: Player, battle_type : BattleType) -> Self{
         Battle{
             battle_type,
             attacker,
