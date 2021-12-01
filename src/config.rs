@@ -1,6 +1,6 @@
 
 use clap::{App, Arg, ArgMatches};
-use crate::battle::{BattleType, TownStats, Battle, BattleJSONObject, BattleOutcome, BattleData};
+use crate::battle::{BattleType, TownStats, Battle, BattleJSONObject, BattleOutcome, BattleData, BattleResults};
 use crate::monster::MonsterType;
 use crate::roster::Roster;
 use crate::treasure::Treasure;
@@ -21,6 +21,7 @@ pub struct Config {
     run_count: i32,
     battle_type : Option<BattleType>,
     battle_file : Option<String>,
+    multithread : bool
 
 }
 
@@ -39,7 +40,6 @@ impl Config{
 
         // aggregate data for runs
         let mut battle_outcomes : [i32;7] = [0;7];
-        let mut data : Vec<BattleData>  = vec![];
 
         // Use Normal battle if none specified
         let mut b_type= self.battle_type.unwrap_or_else(|| BattleType::Normal);
@@ -56,26 +56,20 @@ impl Config{
             None => Battle::new(Player::default(), Player::default(), b_type)
         };
 
-        // run run_count battles
-        for i in 1..=self.run_count {
-            // run battles
-            if self.log || i % f32::ceil(self.run_count as f32/10.0) as i32 == 0{
-                println!("Run {}", i);
-            }
+        // run battles with either one or multiple threads
+        let data : (Vec<BattleData>, Vec<BattleResults>) = match self.multithread{
+            true => self.run_multiple_threads(&b),
+            false => self.run_single_thread(&b)
+        };
 
-            // create temporary Battle to use
-            let mut temp = if self.use_rand {
-                Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5, self.battle_type)
-            }else{
-                b.clone()
-            };
+        // output data for each battle
+        if self.log{
+            data.1.iter().for_each(|r| println!("{}",r.battle_output()));
+        }
 
-            // create new BattleData and run
-            data.push(BattleData::new(&self.roster));
-            let res = temp.autoresolve(&self.treasure, &mut data[(i-1) as usize]);
-
-            // save outcome data
-            match data[(i-1) as usize].get_outcome(){
+        // save outcome data
+        data.0.iter().for_each(|d|
+            match d.get_outcome(){
                 BattleOutcome::DecisiveVictory => battle_outcomes[0] += 1,
                 BattleOutcome::HeroicVictory => battle_outcomes[1] += 1,
                 BattleOutcome::CloseVictory => battle_outcomes[2] += 1,
@@ -83,13 +77,9 @@ impl Config{
                 BattleOutcome::CloseDefeat => battle_outcomes[4] += 1,
                 BattleOutcome::ValiantDefeat => battle_outcomes[5] += 1,
                 BattleOutcome::CrushingDefeat => battle_outcomes[6] += 1,
-            };
-
-            // output results
-            if self.log{
-                println!("{}",res.battle_output());
             }
-        }
+        );
+
         println!("Battle Type: {}\nResults(For attacker):\n\
         Decisive Victory:{}\n\
         Heroic Victory:{}\n\
@@ -105,8 +95,47 @@ impl Config{
 
         // save data to file
         if self.save_data {
-            self.save_run_results(&mut data, b_type)
+            self.save_run_results(&data, b_type)
         }
+    }
+
+    /// Run all calculations using a single thread
+    fn run_single_thread(&self, battle : &Battle) -> (Vec<BattleData>, Vec<BattleResults>) {
+        let mut data : Vec<BattleData> = vec![];
+        let mut res : Vec<BattleResults> = vec![];
+        for i in 1..=self.run_count {
+            // run battles
+            if self.log || i % f32::ceil(self.run_count as f32/10.0) as i32 == 0{
+                println!("Run {}", i);
+            }
+
+            let r = self.autoresolve_battle(battle);
+            data.push(r.0);
+            res.push(r.1);
+        }
+        (data, res)
+    }
+
+    /// Run calculations utilizing multiple threads
+    fn run_multiple_threads(&self, battle : &Battle) -> (Vec<BattleData>, Vec<BattleResults>){
+        let data : Vec<BattleData> = vec![];
+        let res : Vec<BattleResults> = vec![];
+
+
+        (data, res)
+    }
+
+    /// Autoresolve a single battle and return the BattleData and BattleResults structs
+    fn autoresolve_battle(&self, battle : &Battle) -> (BattleData, BattleResults){
+        // create temporary Battle to use
+        let mut b = if self.use_rand {
+            Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5, self.battle_type)
+        }else{
+            battle.clone()
+        };
+        let mut data = BattleData::new(&self.roster);
+        let res = b.autoresolve(&self.treasure, &mut data);
+        (data,res)
     }
 
     /// Save set of run results to file
@@ -157,6 +186,7 @@ impl Config{
                 "1" | _ => BattleType::Normal,
             }),
             battle_file: matches.value_of("battle_file").map(|s| s.to_string()),
+            multithread: matches.is_present("multithread"),
         }
     }
 
@@ -208,6 +238,9 @@ impl Config{
             .help("Battle JSON file to read and run.")
             .value_name("FILE")
             .conflicts_with_all(&["random","battle_type"]);
+        let multithread = Arg::with_name("multithread")
+            .short("m").long("multithread")
+            .help("Utilize multiple threads for running calculations");
 
         // Create and return new App
         App::new("Autoresolve")
@@ -223,6 +256,7 @@ impl Config{
             .arg(treasure_file)
             .arg(battle_file)
             .arg(log)
+            .arg(multithread)
     }
 
 }
@@ -246,12 +280,13 @@ mod cli_tests{
         assert_eq!(cfg.battle_type,None);
         assert_eq!(None,cfg.output_file_override);
         assert_eq!(None,cfg.battle_file);
+        assert!(!cfg.multithread);
     }
 
     #[test]
     fn test_non_default_cli_options(){
         let app = Config::initialize_clap_app();
-        let args = vec!["","-r","-s","-f","test1","-c","2","-b","5","--unit","./ResourceFiles/units.csv","--treasure","./ResourceFiles/equipment.csv","-l"];
+        let args = vec!["","-r","-s","-f","test1","-c","2","-m","-b","5","--unit","./ResourceFiles/units.csv","--treasure","./ResourceFiles/equipment.csv","-l"];
         let matches = app.get_matches_from(args);
         let cfg = Config::parse_app_arguments(&matches);
         assert!(cfg.save_data);
@@ -261,6 +296,7 @@ mod cli_tests{
         assert_eq!(cfg.battle_type,Some(BattleType::Monster {monster:MonsterType::Minotaur}));
         assert_eq!(Some("test1".to_string()),cfg.output_file_override);
         assert_eq!(None,cfg.battle_file);
+        assert!(cfg.multithread);
     }
 
     #[test]
