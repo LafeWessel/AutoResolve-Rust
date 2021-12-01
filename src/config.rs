@@ -41,6 +41,7 @@ impl Config{
         let mut battle_outcomes : [i32;7] = [0;7];
         let mut data : Vec<BattleData>  = vec![];
 
+        // Use Normal battle if none specified
         let mut b_type = match self.battle_type{
             None => BattleType::Normal,
             Some(b) => b
@@ -53,32 +54,28 @@ impl Config{
                 println!("Run {}", i);
             }
 
-            // If using random data, ensure that it goes to the random_data.csv file
-            let output_file = match self.use_rand{
-                true => match self.battle_type {
-                    None => Some(String::from("./DataCapture/random_data.csv")),
-                    Some(b) => None
-                }
-                false => self.output_file_override.clone()
-            };
-
-            data.push(BattleData::new(&self.roster, &output_file));
+            data.push(BattleData::new(&self.roster));
 
             // create Battle and run
             let mut b = match &self.battle_file {
+                // using a JSON battle
                 Some(s) => {
                     let b = BattleJSONObject::from_json(s).produce_battle(&self.roster, &self.treasure);
                     b_type = b.get_battle_type();
                     b
                 },
+                // not using JSON
                 None => if self.use_rand {
+                    // using randomly generated data
                     Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5, self.battle_type)
                 } else {
+                    // using default data
                     let attacker = Player::default();
                     let defender = Player::default();
                     Battle::new(attacker, defender, self.battle_type.unwrap_or_else(|| BattleType::Normal), &self.roster, &self.output_file_override)
                 },
             };
+
             let res = b.autoresolve(&self.treasure, &mut data[(i-1) as usize]);
 
             match res.get_outcome(){
@@ -113,13 +110,19 @@ impl Config{
         // create BufWriter and write to file
         if self.save_data{
 
-            let loc = data[0].get_save_location();
+            // Determine what the output file should be
+            let output_file : String = match &self.output_file_override{
+                // use default
+                None => String::from(format!("./DataCapture/{}",b_type.get_data_path())),
+                // override default
+                Some(s) => s.clone()
+            };
 
-            let file_path = Path::new(&loc);
+            let file_path = Path::new(&output_file);
             // If output file doesn't exist, create by copying template
             if !Path::exists(file_path){
-                println!("Creating output file at {} for battle data",loc);
-                fs::copy("./ResourceFiles/data_capture_template.txt", &loc).unwrap();
+                println!("Creating output file at {} for battle data",output_file);
+                fs::copy("./ResourceFiles/data_capture_template.txt", &output_file).unwrap();
             }
 
             // Write lines to file
