@@ -570,11 +570,18 @@ impl BattleData{
         }
     }
 
+    /// Get save/output file
     pub fn get_save_location(&self) -> &String{
         &self.output_location
     }
 
-
+    /// Get outcome
+    pub fn get_outcome(&self) -> BattleOutcome{
+        if !self.got_calculations{
+            panic!();
+        }
+        BattleOutcome::determine_outcome(self.data[3].parse().unwrap())
+    }
 
     /// Save initial battle data before running autoresolve
     fn collect_initial_battle_data(&mut self, battle : &Battle){
