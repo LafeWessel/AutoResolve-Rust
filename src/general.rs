@@ -22,6 +22,21 @@ impl Default for General{
     }
 }
 
+impl Clone for General{
+    fn clone(&self) -> Self {
+        General{
+            state: GeneralState::Unharmed,
+            armor: self.armor.clone(),
+            weapon: self.weapon.clone(),
+            banner: self.banner.clone(),
+            follower: self.follower.clone(),
+            trinket: self.trinket.clone(),
+            rank: self.rank,
+            bonus: self.bonus
+        }
+    }
+}
+
 impl General{
     pub fn new(armor :  Option<Equipment>, weapon : Option<Equipment>, banner: Option<Equipment>,
                follower : Option<Equipment>, trinket : Option<Equipment>, rank : i32) -> Self{

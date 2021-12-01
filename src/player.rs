@@ -27,6 +27,21 @@ impl Default for Player{
     }
 }
 
+impl Clone for Player{
+    fn clone(&self) -> Self {
+        Player{
+            units: self.units.clone(),
+            gen: self.gen.clone(),
+            reinforcements: self.reinforcements,
+            adv_combat: self.adv_combat,
+            faction: self.faction,
+            melee_bonus: self.melee_bonus,
+            cavalry_bonus: self.cavalry_bonus,
+            ranged_bonus: self.ranged_bonus,
+            leader_bonus: self.ranged_bonus
+        }
+    }
+}
 
 impl Player{
     pub fn new(units : Vec<Unit>, general : General) -> Self{
