@@ -95,7 +95,7 @@ impl Config{
 
         // save data to file
         if self.save_data {
-            self.save_run_results(&data, b_type)
+            self.save_run_results(&data.0, b_type)
         }
     }
 
