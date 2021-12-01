@@ -279,8 +279,16 @@ impl Battle{
     pub fn get_battle_type(&self) -> BattleType{
         self.battle_type
     }
+}
 
-
+impl Clone for Battle{
+    fn clone(&self) -> Self {
+        Battle{
+            battle_type: self.battle_type,
+            attacker: self.attacker.clone(),
+            defender: self.defender.clone(),
+        }
+    }
 }
 
 #[derive(Debug)]
