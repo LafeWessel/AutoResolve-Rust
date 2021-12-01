@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Equipment{

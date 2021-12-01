@@ -2,7 +2,6 @@ use crate::equipment::{Equipment, EquipmentType};
 use std::fs;
 use rand::seq::SliceRandom;
 use rand::Rng;
-use std::ops::Deref;
 
 pub struct Treasure{
     file_path : String,
@@ -125,7 +124,7 @@ mod tests{
         assert_eq!(None, e);
         let e = t.get_item_by_id(1);
         assert!(match e {
-            Some(k) => true,
+            Some(_) => true,
             None => false,
         });
     }

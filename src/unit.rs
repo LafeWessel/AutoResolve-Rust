@@ -1,5 +1,4 @@
 use crate::faction::Faction;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub struct Unit{

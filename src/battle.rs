@@ -10,7 +10,6 @@ use std::fs::{OpenOptions};
 use std::io::Write;
 use std::fs;
 use serde::{Deserialize, Serialize};
-use std::borrow::Borrow;
 
 #[derive(Debug)]
 pub struct Battle{
@@ -767,12 +766,12 @@ impl BattleData{
         // Write lines to file
         let mut f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
         // Write each data entry, write the first before to ensure proper comma alignment
-        write!(f,"{}",self.data[0]);
+        write!(f,"{}",self.data[0]).unwrap();
         for line in self.data.iter().skip(1){
             // Write each cell, separating with commas
-            write!(f,",{}",line);
+            write!(f,",{}",line).unwrap();
         }
-        write!(f,"\n");
+        write!(f,"\n").unwrap();
         true
     }
 
@@ -790,7 +789,7 @@ impl BattleData{
         s.push_str(format!("{}",self.data[0]).as_str());
         for line in self.data.iter().skip(1){
             // Write each cell, separating with commas
-            s.push_str((format!(",{}",line).as_str()));
+            s.push_str(format!(",{}",line).as_str());
         }
         s
     }
@@ -1038,7 +1037,7 @@ mod battle_data_tests{
         assert_eq!(t,f);
 
         b.data = vec![String::from("0"),String::from("1"),String::from("2")];
-        fs::remove_file(Path::new(&output_location));
+        fs::remove_file(Path::new(&output_location)).unwrap();
         assert_eq!(true,b.save_to_file(&output_location));
         let f : String = fs::read_to_string(&output_location).unwrap();
         assert_eq!(f.lines().nth(1).unwrap().trim().parse::<String>().unwrap(), "0,1,2");
@@ -1049,7 +1048,7 @@ mod battle_data_tests{
         assert_eq!(f.lines().nth(2).unwrap().trim().parse::<String>().unwrap(), "0,1,2");
 
         // clean up
-        fs::remove_file(Path::new(&output_location));
+        fs::remove_file(Path::new(&output_location)).unwrap();
     }
 }
 

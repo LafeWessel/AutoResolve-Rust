@@ -130,7 +130,7 @@ impl Config{
         }
 
         // Open output file
-        let mut f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
+        let f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
 
         // Write lines to file
         let mut writer = BufWriter::new(f);

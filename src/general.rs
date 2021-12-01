@@ -2,7 +2,6 @@ use crate::equipment::{Equipment, EquipmentType};
 use serde::{Deserialize, Serialize};
 use rand::Rng;
 use crate::treasure::Treasure;
-use std::fs;
 
 #[derive(Debug)]
 pub struct General{
