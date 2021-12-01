@@ -382,6 +382,23 @@ impl BattleType {
         }
     }
 
+    /// Get enum from name using default values
+    pub fn from_name(name : &str) -> Self{
+        match name{
+            "Normal" => BattleType::Normal,
+            "Siege" => BattleType::Siege {
+                rams: 0,
+                catapults: 0,
+                siege_towers: 0,
+                defenses: Default::default()
+            },
+            "Raid" => BattleType::Raid { defenses: Default::default() },
+            "Naval" => BattleType::Naval { attacker_ships: 0, defender_ships: 0 },
+            "Monster" => BattleType::Monster { monster: MonsterType::Minotaur },
+            _ => panic!()
+        }
+    }
+
     /// Create randomized BattleType
     fn generate_random_battle_type() -> Self{
         let mut rng = rand::thread_rng();
@@ -581,6 +598,14 @@ impl BattleData{
             panic!();
         }
         BattleOutcome::determine_outcome(self.data[3].parse().unwrap())
+    }
+
+    /// Get battle type
+    pub fn get_battle_type(&self) -> BattleType{
+        if !self.got_initial{
+            panic!();
+        }
+        BattleType::
     }
 
     /// Save initial battle data before running autoresolve
