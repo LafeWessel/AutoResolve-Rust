@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use rand::Rng;
 use crate::treasure::Treasure;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct General{
     state : GeneralState,
     armor : Option<Equipment>,
@@ -18,21 +18,6 @@ pub struct General{
 impl Default for General{
     fn default() -> Self {
         General::new(None, None, None, None, None, 0)
-    }
-}
-
-impl Clone for General{
-    fn clone(&self) -> Self {
-        General{
-            state: GeneralState::Unharmed,
-            armor: self.armor.clone(),
-            weapon: self.weapon.clone(),
-            banner: self.banner.clone(),
-            follower: self.follower.clone(),
-            trinket: self.trinket.clone(),
-            rank: self.rank,
-            bonus: self.bonus
-        }
     }
 }
 
