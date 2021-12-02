@@ -9,7 +9,9 @@ use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::fs;
 use std::fs::OpenOptions;
-
+use std::sync::mpsc::channel;
+use threadpool::ThreadPool;
+use std::borrow::Borrow;
 
 pub struct Config {
     roster : Roster,
@@ -18,7 +20,7 @@ pub struct Config {
     save_data : bool,
     log : bool,
     output_file_override : Option<String>,
-    run_count: i32,
+    run_count: u32,
     battle_type : Option<BattleType>,
     battle_file : Option<String>,
     multithread : bool
@@ -80,6 +82,7 @@ impl Config{
             }
         );
 
+        // print general result statistics
         println!("Battle Type: {}\nResults(For attacker):\n\
         Decisive Victory:{}\n\
         Heroic Victory:{}\n\
@@ -163,7 +166,7 @@ impl Config{
 
         // Write lines to file
         let mut writer = BufWriter::new(f);
-        data.iter().map(|d| writeln!(writer, "{}", d.format_output())).for_each(drop);
+        data.iter().for_each(|d| writeln!(writer, "{}", d.format_output()).unwrap());
         println!("Done");
     }
 
