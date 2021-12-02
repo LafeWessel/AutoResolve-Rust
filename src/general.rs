@@ -164,7 +164,7 @@ impl GeneralJSONObject{
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum GeneralState {
     Unharmed,
     Wounded,

@@ -290,7 +290,7 @@ impl Clone for Battle{
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BattleResults{
     battle_type : BattleType,
     outcome: BattleOutcome,
@@ -324,13 +324,13 @@ impl BattleResults{
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct BattleCasualties{
     attacker : Casualties,
     defender : Casualties,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Casualties {
     state : GeneralState,
     upgrades : i32,
@@ -338,7 +338,7 @@ struct Casualties {
     unit_casualties : i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct TreasureResults{
     attacker : Option<Equipment>,
     defender : Option<Equipment>,
@@ -565,7 +565,7 @@ impl BattleOutcome {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BattleData{
     data : Vec<String>,
     unit_names : Vec<String>,
