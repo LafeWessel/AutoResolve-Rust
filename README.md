@@ -30,6 +30,10 @@ JSON file to read and parse to battle. Mutually exclusive with `r`/`--random` an
 
 Display results from each battle run
 
+### `-m`/`--multithread`
+
+Use multithreading to calculate runs. Noticeable benefit will only be gained when calculating > 100 battles.
+
 ### `-r`/`--random`
 
 Use randomly generated data for battle runs. Mutually exclusive with `-j`/`--json`.
