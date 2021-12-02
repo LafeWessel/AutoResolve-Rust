@@ -2,9 +2,8 @@ use crate::equipment::{Equipment, EquipmentType};
 use serde::{Deserialize, Serialize};
 use rand::Rng;
 use crate::treasure::Treasure;
-use std::fs;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct General{
     state : GeneralState,
     armor : Option<Equipment>,
@@ -150,7 +149,7 @@ impl GeneralJSONObject{
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum GeneralState {
     Unharmed,
     Wounded,

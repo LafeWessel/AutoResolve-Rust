@@ -10,9 +10,8 @@ use std::fs::{OpenOptions};
 use std::io::Write;
 use std::fs;
 use serde::{Deserialize, Serialize};
-use std::borrow::Borrow;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Battle{
     battle_type : BattleType,
     attacker : Player,
@@ -21,7 +20,7 @@ pub struct Battle{
 
 impl Battle{
 
-    pub fn new(attacker : Player, defender: Player, battle_type : BattleType,  roster : &Roster, output_file : &Option<String>) -> Self{
+    pub fn new(attacker : Player, defender: Player, battle_type : BattleType) -> Self{
         Battle{
             battle_type,
             attacker,
@@ -279,11 +278,11 @@ impl Battle{
     pub fn get_battle_type(&self) -> BattleType{
         self.battle_type
     }
-
-
 }
 
-#[derive(Debug)]
+
+
+#[derive(Debug, Clone)]
 pub struct BattleResults{
     battle_type : BattleType,
     outcome: BattleOutcome,
@@ -317,13 +316,13 @@ impl BattleResults{
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct BattleCasualties{
     attacker : Casualties,
     defender : Casualties,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Casualties {
     state : GeneralState,
     upgrades : i32,
@@ -331,7 +330,7 @@ struct Casualties {
     unit_casualties : i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct TreasureResults{
     attacker : Option<Equipment>,
     defender : Option<Equipment>,
@@ -360,7 +359,7 @@ impl BattleType {
 
 
     /// Get file name for where data is saved
-    fn get_data_path(&self) -> String{
+    pub fn get_data_path(&self) -> String{
         match *self{
             BattleType::Normal => String::from("NormalData.csv"),
             BattleType::Siege { .. } => String::from("SiegeData.csv"),
@@ -379,6 +378,23 @@ impl BattleType {
             BattleType::Raid { .. } => String::from("Raid"),
             BattleType::Naval { .. } => String::from("Naval"),
             BattleType::Monster { .. } => String::from("Monster"),
+        }
+    }
+
+    /// Get enum from name using default values
+    pub fn from_name(name : &str) -> Self{
+        match name{
+            "Normal" => BattleType::Normal,
+            "Siege" => BattleType::Siege {
+                rams: 0,
+                catapults: 0,
+                siege_towers: 0,
+                defenses: Default::default()
+            },
+            "Raid" => BattleType::Raid { defenses: Default::default() },
+            "Naval" => BattleType::Naval { attacker_ships: 0, defender_ships: 0 },
+            "Monster" => BattleType::Monster { monster: MonsterType::Minotaur },
+            _ => panic!()
         }
     }
 
@@ -541,11 +557,10 @@ impl BattleOutcome {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BattleData{
     data : Vec<String>,
     unit_names : Vec<String>,
-    output_location : String,
     got_initial : bool,
     got_calculations : bool,
     got_results : bool,
@@ -553,35 +568,36 @@ pub struct BattleData{
 
 impl BattleData{
     /// Create new BattleData. If output_file is None, uses default for each kind of BattleType.
-    pub fn new(roster : &Roster, output_file: &Option<String>) -> Self{
-
-        let output = match output_file {
-            None => String::from("./DataCapture/"),
-            Some(s) => s.clone(),
-        };
+    pub fn new(roster : &Roster) -> Self{
 
         BattleData{
             data : vec![String::new();141],
             unit_names : roster.get_all_unit_names(),
-            output_location : output,
             got_initial : false,
             got_calculations : false,
             got_results : false,
         }
     }
 
-    pub fn get_save_location(&self) -> &String{
-        &self.output_location
+    /// Get outcome
+    pub fn get_outcome(&self) -> BattleOutcome{
+        if !self.got_calculations{
+            panic!();
+        }
+        BattleOutcome::determine_outcome(self.data[3].parse().unwrap())
     }
 
-
+    /// Get battle type
+    pub fn get_battle_type(&self) -> BattleType{
+        if !self.got_initial{
+            panic!();
+        }
+        BattleType::from_name(&*self.data[0])
+    }
 
     /// Save initial battle data before running autoresolve
     fn collect_initial_battle_data(&mut self, battle : &Battle){
-        // set output location
-        if self.output_location == "./DataCapture/"{
-            self.output_location.push_str(&*battle.battle_type.get_data_path());
-        }
+
 
         // Battle type
         self.data[0] = battle.battle_type.get_name();
@@ -724,7 +740,7 @@ impl BattleData{
     }
 
     /// Save results to disk, return if operation was successful
-    pub fn save_to_file(&self) -> bool{
+    pub fn save_to_file(&self, output_file : &String) -> bool{
         if !self.got_calculations || !self.got_results || !self.got_initial{
             println!("Unable to write because not all data yet set\n\t\
             Initial:{}\n\tRandoms:{}\n\tResults:{}"
@@ -732,22 +748,22 @@ impl BattleData{
             return false;
         }
 
-        let file_path = Path::new(&self.output_location);
+        let file_path = Path::new(&output_file);
         // If output file doesn't exist, create by copying template
         if !Path::exists(file_path){
-            println!("Creating output file at {} for battle data",self.output_location);
-            fs::copy("./ResourceFiles/data_capture_template.txt", &self.output_location).unwrap();
+            println!("Creating output file at {} for battle data",output_file);
+            fs::copy("./ResourceFiles/data_capture_template.txt", &output_file).unwrap();
         }
 
         // Write lines to file
         let mut f = OpenOptions::new().write(true).append(true).open(file_path).unwrap();
         // Write each data entry, write the first before to ensure proper comma alignment
-        write!(f,"{}",self.data[0]);
+        write!(f,"{}",self.data[0]).unwrap();
         for line in self.data.iter().skip(1){
             // Write each cell, separating with commas
-            write!(f,",{}",line);
+            write!(f,",{}",line).unwrap();
         }
-        write!(f,"\n");
+        write!(f,"\n").unwrap();
         true
     }
 
@@ -765,7 +781,7 @@ impl BattleData{
         s.push_str(format!("{}",self.data[0]).as_str());
         for line in self.data.iter().skip(1){
             // Write each cell, separating with commas
-            s.push_str((format!(",{}",line).as_str()));
+            s.push_str(format!(",{}",line).as_str());
         }
         s
     }
@@ -987,44 +1003,44 @@ mod battle_data_tests{
         let mut b = BattleData{
             data: vec![String::new()],
             unit_names: vec![],
-            output_location: "./DataCapture/test.csv".to_string(),
             got_initial: false,
             got_calculations: false,
             got_results: false
         };
-        // remove output file if it somehow exists
-        fs::remove_file(Path::new(&b.output_location));
 
-        assert_eq!(false, b.save_to_file());
+        let output_location = "./DataCapture/test.csv".to_string();
+
+
+        assert_eq!(false, b.save_to_file(&output_location));
         b.got_results = true;
 
-        assert_eq!(false, b.save_to_file());
+        assert_eq!(false, b.save_to_file(&output_location));
         b.got_calculations = true;
 
-        assert_eq!(false, b.save_to_file());
+        assert_eq!(false, b.save_to_file(&output_location));
         b.got_initial = true;
 
         assert_eq!(false,Path::exists(Path::new("./DataCapture/test.csv")));
-        assert_eq!(true, b.save_to_file());
+        assert_eq!(true, b.save_to_file(&output_location));
         assert_eq!(true,Path::exists(Path::new("./DataCapture/test.csv")));
 
         let t : String = fs::read_to_string("./ResourceFiles/data_capture_template.txt").unwrap().trim().parse().unwrap();
-        let f : String = fs::read_to_string(&b.output_location).unwrap().trim().parse().unwrap();
+        let f : String = fs::read_to_string(&output_location).unwrap().trim().parse().unwrap();
         assert_eq!(t,f);
 
         b.data = vec![String::from("0"),String::from("1"),String::from("2")];
-        fs::remove_file(Path::new(&b.output_location));
-        assert_eq!(true,b.save_to_file());
-        let f : String = fs::read_to_string(&b.output_location).unwrap();
+        fs::remove_file(Path::new(&output_location)).unwrap();
+        assert_eq!(true,b.save_to_file(&output_location));
+        let f : String = fs::read_to_string(&output_location).unwrap();
         assert_eq!(f.lines().nth(1).unwrap().trim().parse::<String>().unwrap(), "0,1,2");
 
-        assert_eq!(true,b.save_to_file());
-        let f : String = fs::read_to_string(&b.output_location).unwrap();
+        assert_eq!(true,b.save_to_file(&output_location));
+        let f : String = fs::read_to_string(&output_location).unwrap();
         assert_eq!(f.lines().nth(1).unwrap().trim().parse::<String>().unwrap(), "0,1,2");
         assert_eq!(f.lines().nth(2).unwrap().trim().parse::<String>().unwrap(), "0,1,2");
 
         // clean up
-        fs::remove_file(Path::new(&b.output_location));
+        fs::remove_file(Path::new(&output_location)).unwrap();
     }
 }
 

@@ -2,7 +2,7 @@ use crate::unit::Unit;
 use crate::faction::Faction;
 use std::fs;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Roster{
     file_path : String,
     units : Vec<Unit>,

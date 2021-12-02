@@ -6,7 +6,7 @@ use crate::roster::Roster;
 use rand::Rng;
 use crate::treasure::Treasure;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Player{
     units: Vec<Unit>,
     gen: General,
@@ -26,7 +26,6 @@ impl Default for Player{
         Player::new(vec![],General::default())
     }
 }
-
 
 impl Player{
     pub fn new(units : Vec<Unit>, general : General) -> Self{
@@ -152,7 +151,7 @@ impl Player{
 
         let faction_roster = roster.get_faction_roster(fac);
 
-        for i in 1..rng.gen_range(2..=20){
+        for _ in 1..rng.gen_range(2..=20){
             units.push(faction_roster[rng.gen_range(0..faction_roster.len())].clone());
         }
 
