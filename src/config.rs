@@ -129,7 +129,8 @@ impl Config{
     }
 
     /// Run calculations utilizing multiple threads
-    fn run_multiple_threads<'a>(&self, battle : &'a Battle, count : u32) -> (Vec<BattleData>, Vec<BattleResults>){
+    fn run_multiple_threads(&self, battle : &Battle, count : u32) -> (Vec<BattleData>, Vec<BattleResults>){
+
         let mut data : Vec<BattleData> = vec![];
         let mut res : Vec<BattleResults> = vec![];
 
@@ -147,43 +148,41 @@ impl Config{
         let remainder = count % (num_threads as u32 - 1);
 
         // run and receive data from threads
-        for i in 0..(num_threads - 1){
-            let tx_c = tx.clone();
+        for i in 1..=num_threads {
             let ros = self.roster.clone();
             let tr = self.treasure.clone();
             let bat = battle.clone();
             let rand = self.use_rand;
             let b_type = self.battle_type.clone();
-            pool.execute(move || {
-                let r = ros;
-                let t = tr;
-                let b = bat;
-                let thread_results = Config::run_single_thread(&b, ct_per_thread, &r, &t, rand, b_type);
-                tx_c.send(thread_results).expect("Unable to send results through tx channel");
-            });
-        }
+            let tx_c = tx.clone();
 
-        // run remainder calculations
-        let tx_c = tx.clone();
-        let ros = self.roster.clone();
-        let tr = self.treasure.clone();
-        let bat = battle.clone();
-        let rand = self.use_rand;
-        let b_type = self.battle_type.clone();
-        pool.execute(move || {
-            let r = ros;
-            let t = tr;
-            let b = bat;
-            let thread_results = Config::run_single_thread(&b, remainder, &r, &t, rand, b_type);
-            tx_c.send(thread_results).expect("Unable to send results through tx channel");
-        });
+            if i < num_threads { // first n-1 threads
+                pool.execute(move || {
+                    let r = ros;
+                    let t = tr;
+                    let b = bat;
+                    let thread_results = Config::run_single_thread(&b, ct_per_thread, &r, &t, rand, b_type);
+                    tx_c.send(thread_results).expect("Unable to send results through tx channel");
+                });
+            } else { // thread
+                pool.execute(move || {
+                    let r = ros;
+                    let t = tr;
+                    let b = bat;
+                    let thread_results = Config::run_single_thread(&b, remainder, &r, &t, rand, b_type);
+                    tx_c.send(thread_results).expect("Unable to send results through tx channel");
+                });
+            }
+        }
 
         // ensure all threads have completed before continuing
         pool.join();
         assert_eq!(0,pool.panic_count());
+        // ensure initial tx channel is closed
+        drop(tx);
 
         // save results to vectors
-        for r in rx{
+        for (i,r) in rx.iter().enumerate(){
             r.0.iter().map(|d| data.push(d.clone())).for_each(drop);
             r.1.iter().map(|r| res.push(r.clone())).for_each(drop);
         }
