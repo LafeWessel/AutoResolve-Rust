@@ -151,11 +151,14 @@ impl Config{
             let tx_c = tx.clone();
             let ros = self.roster.clone();
             let tr = self.treasure.clone();
+            let bat = battle.clone();
+            let rand = self.use_rand;
+            let b_type = self.battle_type.clone();
             pool.execute(move || {
                 let r = ros;
                 let t = tr;
-                let b = battle.clone();
-                let thread_results = Config::run_single_thread(&b, ct_per_thread, &r, &t, self.use_rand, self.battle_type.clone());
+                let b = bat;
+                let thread_results = Config::run_single_thread(&b, ct_per_thread, &r, &t, rand, b_type);
                 tx_c.send(thread_results).expect("Unable to send results through tx channel");
             });
         }
@@ -164,11 +167,14 @@ impl Config{
         let tx_c = tx.clone();
         let ros = self.roster.clone();
         let tr = self.treasure.clone();
+        let bat = battle.clone();
+        let rand = self.use_rand;
+        let b_type = self.battle_type.clone();
         pool.execute(move || {
             let r = ros;
             let t = tr;
-            let b = battle.clone();
-            let thread_results = Config::run_single_thread(&b, remainder, &r, &t, self.use_rand, self.battle_type.clone());
+            let b = bat;
+            let thread_results = Config::run_single_thread(&b, remainder, &r, &t, rand, b_type);
             tx_c.send(thread_results).expect("Unable to send results through tx channel");
         });
 
