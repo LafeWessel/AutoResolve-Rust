@@ -9,9 +9,10 @@ use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::fs;
 use std::fs::OpenOptions;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Sender, Receiver};
 use threadpool::ThreadPool;
-use std::borrow::Borrow;
+use std::sync::{Mutex, Arc};
+
 
 pub struct Config {
     roster : Roster,
@@ -61,7 +62,7 @@ impl Config{
         // run battles with either one or multiple threads
         let data : (Vec<BattleData>, Vec<BattleResults>) = match self.multithread{
             true => self.run_multiple_threads(&b, self.run_count),
-            false => self.run_single_thread(&b, self.run_count)
+            false => Config::run_single_thread(&b, self.run_count, &self.roster, &self.treasure, self.use_rand, self.battle_type)
         };
 
         // output data for each battle
@@ -103,13 +104,24 @@ impl Config{
     }
 
     /// Run all calculations using a single thread
-    fn run_single_thread(battle : &Battle, count : u32) -> (Vec<BattleData>, Vec<BattleResults>) {
+    fn run_single_thread(battle: &Battle, count : u32, roster : &Roster, treasure : &Treasure,  use_rand : bool, battle_type : Option<BattleType>) -> (Vec<BattleData>, Vec<BattleResults>) {
         let mut data : Vec<BattleData> = vec![];
         let mut res : Vec<BattleResults> = vec![];
 
         for i in 1..=count {
             // run battles
-            let r = self.autoresolve_battle(battle);
+
+            // create temp battle
+            let mut temp = match use_rand{
+                true => {
+                    Battle::generate_random_battle(roster,treasure,3,10,5, battle_type)
+                }
+                false => {
+                    battle.clone()
+                }
+            };
+
+            let r = Config::autoresolve_battle(&mut temp, roster, treasure);
             data.push(r.0);
             res.push(r.1);
         }
@@ -117,19 +129,66 @@ impl Config{
     }
 
     /// Run calculations utilizing multiple threads
-    fn run_multiple_threads(&self, battle : &Battle) -> (Vec<BattleData>, Vec<BattleResults>){
-        let data : Vec<BattleData> = vec![];
-        let res : Vec<BattleResults> = vec![];
+    fn run_multiple_threads<'a>(&self, battle : &'a Battle, count : u32) -> (Vec<BattleData>, Vec<BattleResults>){
+        let mut data : Vec<BattleData> = vec![];
+        let mut res : Vec<BattleResults> = vec![];
 
+        // create multiple producer, single consumer channel for receiving results tuples
+        let (tx,rx) : (Sender<(Vec<BattleData>, Vec<BattleResults>)>, Receiver<(Vec<BattleData>, Vec<BattleResults>)>)= channel();
+
+        // determine how many threads to create
+        let num_threads = num_cpus::get();
+
+        // create ThreadPool
+        let pool = ThreadPool::new(num_threads);
+
+        // determine how to break up self.run_count to run all calculations
+        let ct_per_thread: u32 = count / (num_threads as u32 - 1);
+        let remainder = count % (num_threads as u32 - 1);
+
+        // run and receive data from threads
+        for i in 0..(num_threads - 1){
+            let tx_c = tx.clone();
+            let ros = self.roster.clone();
+            let tr = self.treasure.clone();
+            pool.execute(move || {
+                let r = ros;
+                let t = tr;
+                let b = battle.clone();
+                let thread_results = Config::run_single_thread(&b, ct_per_thread, &r, &t, self.use_rand, self.battle_type.clone());
+                tx_c.send(thread_results).expect("Unable to send results through tx channel");
+            });
+        }
+
+        // run remainder calculations
+        let tx_c = tx.clone();
+        let ros = self.roster.clone();
+        let tr = self.treasure.clone();
+        pool.execute(move || {
+            let r = ros;
+            let t = tr;
+            let b = battle.clone();
+            let thread_results = Config::run_single_thread(&b, remainder, &r, &t, self.use_rand, self.battle_type.clone());
+            tx_c.send(thread_results).expect("Unable to send results through tx channel");
+        });
+
+        // ensure all threads have completed before continuing
+        pool.join();
+        assert_eq!(0,pool.panic_count());
+
+        // save results to vectors
+        for r in rx{
+            r.0.iter().map(|d| data.push(d.clone())).for_each(drop);
+            r.1.iter().map(|r| res.push(r.clone())).for_each(drop);
+        }
 
         (data, res)
     }
 
     /// Autoresolve a single battle and return the BattleData and BattleResults structs
-    fn autoresolve_battle(&self, battle: &mut Battle) -> (BattleData, BattleResults){
-        // create temporary Battle to use
-        let mut data = BattleData::new(&self.roster);
-        let res = battle.autoresolve(&self.treasure, &mut data);
+    fn autoresolve_battle(battle: &mut Battle, roster : &Roster, treasure : &Treasure) -> (BattleData, BattleResults){
+        let mut data = BattleData::new(roster);
+        let res = battle.autoresolve(treasure, &mut data);
         (data,res)
     }
 
