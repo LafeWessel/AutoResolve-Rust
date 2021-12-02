@@ -60,8 +60,8 @@ impl Config{
 
         // run battles with either one or multiple threads
         let data : (Vec<BattleData>, Vec<BattleResults>) = match self.multithread{
-            true => self.run_multiple_threads(&b),
-            false => self.run_single_thread(&b)
+            true => self.run_multiple_threads(&b, self.run_count),
+            false => self.run_single_thread(&b, self.run_count)
         };
 
         // output data for each battle
@@ -103,15 +103,12 @@ impl Config{
     }
 
     /// Run all calculations using a single thread
-    fn run_single_thread(&self, battle : &Battle) -> (Vec<BattleData>, Vec<BattleResults>) {
+    fn run_single_thread(battle : &Battle, count : u32) -> (Vec<BattleData>, Vec<BattleResults>) {
         let mut data : Vec<BattleData> = vec![];
         let mut res : Vec<BattleResults> = vec![];
-        for i in 1..=self.run_count {
-            // run battles
-            if self.log || i % f32::ceil(self.run_count as f32/10.0) as i32 == 0{
-                println!("Run {}", i);
-            }
 
+        for i in 1..=count {
+            // run battles
             let r = self.autoresolve_battle(battle);
             data.push(r.0);
             res.push(r.1);
@@ -129,15 +126,10 @@ impl Config{
     }
 
     /// Autoresolve a single battle and return the BattleData and BattleResults structs
-    fn autoresolve_battle(&self, battle : &Battle) -> (BattleData, BattleResults){
+    fn autoresolve_battle(&self, battle: &mut Battle) -> (BattleData, BattleResults){
         // create temporary Battle to use
-        let mut b = if self.use_rand {
-            Battle::generate_random_battle(&self.roster, &self.treasure,3,10,5, self.battle_type)
-        }else{
-            battle.clone()
-        };
         let mut data = BattleData::new(&self.roster);
-        let res = b.autoresolve(&self.treasure, &mut data);
+        let res = battle.autoresolve(&self.treasure, &mut data);
         (data,res)
     }
 
