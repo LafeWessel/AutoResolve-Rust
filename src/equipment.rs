@@ -1,5 +1,5 @@
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Equipment{
     equipment_type : EquipmentType,
     name : String,
@@ -14,21 +14,6 @@ pub struct Equipment{
 impl Default for Equipment{
     fn default() -> Self {
         Equipment::new("Armor",String::from(""),String::from(""),0,0,0,0, false)
-    }
-}
-
-impl Clone for Equipment{
-    fn clone(&self) -> Self {
-        Equipment{
-            equipment_type: self.equipment_type.clone(),
-            name: self.name.clone(),
-            effect: self.effect.clone(),
-            coin_value: self.coin_value,
-            id: self.id,
-            autoresolve_bonus: self.autoresolve_bonus,
-            range: self.range,
-            dragon_equipment: self.dragon_equipment,
-        }
     }
 }
 
